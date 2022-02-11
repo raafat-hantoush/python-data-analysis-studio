@@ -8,6 +8,6 @@ def index(request):
     df=pd.DataFrame({"name":["Kike","Nelson","Rafa"],"Age":[19,18,22]})
     print(df.to_html())
     #template = loader.get_template('/py_data_analysis_code_generator/index.html')
-    return HttpResponse("<b> Hello Kike")
-    ##return render(request, 'py_data_analysis_code_generator/index.html')    
+    #return HttpResponse("<b> Hello Kike")
+    return render(request, 'py_data_analysis_code_generator/index.html')    
     ##return HttpResponse(template.render(request))

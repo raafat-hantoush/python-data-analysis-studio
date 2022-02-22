@@ -1,1 +1,18 @@
-Hello
+
+    {% extends "py_data_analysis_code_generator/base.html" %}
+    {% block content%}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm">
+                {% include "py_data_analysis_code_generator/commands.html" %}
+            </div>
+            <div class="col-sm">
+                {% include "py_data_analysis_code_generator/command_list.html" %}
+            </div>
+            <div class="col-7">
+                    {{ dataframe|safe }}
+            </div>
+        </div>
+      </div>
+    <p></p>
+    {% endblock content %}

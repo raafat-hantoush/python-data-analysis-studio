@@ -1,0 +1,19 @@
+{% block command_list %}
+    {% for elem in steps %}
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                  <h6 class="card-title">{{ elem }}</h6>
+                  <p class="card-text">Some quick example text to build on the card title...</p>
+                </div>
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <button type="submit" class="btn btn-success" name="start" value="apply">apply</button>
+                    <button type="submit" class="btn btn-danger" name="start" value="remove">remove</button>
+                </div>
+            </div>
+        </form>
+        
+        <p></p>
+    {% endfor %}
+{% endblock command_list%}

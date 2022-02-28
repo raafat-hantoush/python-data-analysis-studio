@@ -1,12 +1,20 @@
 
     {% extends "py_data_analysis_code_generator/base.html" %}
     {% block content%}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'py_data_analysis_code_generator/style.css' %}">
+    <form action="" method="post">
+        {% csrf_token %}
+            <p style="margin-left:1em;"><b>Current Experiment: {{ current_experiment|safe }} 
+                <button type="submit" class="btn btn-danger" name="delete_experiment" value="delete_experiment">delete this experiment</button>
+            </p>
+    </form>
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm">
+        <div class="row row-height" >
+            <div class="col-sm-auto" >
                 {% include "py_data_analysis_code_generator/commands.html" %}
             </div>
-            <div class="col-sm">
+            <div  class="col-sm-auto left">
                 {% include "py_data_analysis_code_generator/command_list.html" %}
             </div>
             <div class="col-7">

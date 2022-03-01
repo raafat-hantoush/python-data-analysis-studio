@@ -2,7 +2,7 @@
     {% for elem in steps %}
         <form action="" method="post">
             {% csrf_token %}
-            <div class="card" style="width: 28rem;">
+            <div class="card" draggable="true" style="width: 28rem;">
                 <div class="card-body">
                   <h6 class="card-title">{{ elem }}</h6>
                   <p class="card-text"></p>

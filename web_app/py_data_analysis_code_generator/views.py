@@ -29,7 +29,7 @@ def index(request):
     #print("Current Directory", path)
     df = pd.read_pickle(path+"/web_app/"+'temp/tmp.pkl')
 
-    current_experiment="experiment_0"
+    current_experiment=""
     experiments=[]
     steps = []
     name = 'blub'
@@ -53,6 +53,8 @@ def index(request):
             experiments= delete_experiment(experiments,current_experiment)
             if current_experiment in commands:
                 commands.remove(current_experiment) ## delete the associated command.
+            print("experiments list after delete")
+            print(experiments)
             ## change the current experiment to the first experiement in the list after deleting the current one.
             if experiments:
                 pickle.dump([experiments,experiments[0].id,commands], open(path+"/web_app/"+'temp/project.pickle', 'wb'))
@@ -140,8 +142,8 @@ def delete_experiment(experiments,experiment_id):
         if(Experiment.id==experiment_id): 
             del experiments[ind]
             return experiments
-        else:
-            return experiments  ## Experiment not found!
+    
+    return experiments  ## Experiment not found!
 
 class Experiment:
     def __init__(self,id,steps=[],steps_codes=[],commands=[],description=[]):

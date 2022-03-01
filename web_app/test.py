@@ -1,13 +1,15 @@
 import os
 ##run a system command
-#os.system('jupyter notebook')
-
+os.system('jupyter notebook')
+""""""
 import json
 import requests
 import datetime
 import uuid
 from pprint import pprint
 from websocket import create_connection
+
+
 
 # The token is written on stdout when you start the notebook
 notebook_path = '/Documents/GitHub/general/test.ipynb'

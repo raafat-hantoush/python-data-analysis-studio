@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="{% static 'py_data_analysis_code_generator/style.css' %}">
     <form action="" method="post">
         {% csrf_token %}
-            <p style="margin-left:1em;"><b>Current Experiment: {{ current_experiment|safe }} 
+            <p style="margin-left:1em;"> <b>Current Experiment: {{ current_experiment|safe }} 
                 <button type="submit" class="btn btn-danger" name="delete_experiment" value="delete_experiment">delete this experiment</button>
             </p>
     </form>
@@ -19,6 +19,17 @@
             </div>
             <div class="col-7">
                     {{ dataframe|safe }}
+                    <button type="submit" class="btn btn-success" name="stat_type" value="numericals">Numercials</button>
+                    <button type="submit" class="btn btn-success" name="stat_type" value="categoricals">Categoricals</button>
+                    <button type="submit" class="btn btn-success" name="plot_type" value="hist">Histogram</button>
+                    <button type="submit" class="btn btn-success" name="plot_type" value="corr_heatmap">Corr Heatmap</button>
+                    <button type="submit" class="btn btn-success" name="plot_type" value="boxplot">Boxplot</button>
+                    <button type="submit" class="btn btn-success" name="plot_type" value="pairplot">Pairplot</button>
+                    <div style="white-space: pre-line">
+                    {{ stats|safe }}
+                    </div>
+                    <img src="data:image/png;base64,{{plt_encoded|safe}}" alt="" 
+                    , width="100%">
             </div>
         </div>
       </div>

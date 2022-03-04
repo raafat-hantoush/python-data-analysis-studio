@@ -19,6 +19,7 @@ def plot_vizualisation(df,plot_type="hist",figsize=(9,8)):
         fig=plot_boxplot(df,figsize=(19,24))
     else: 
         fig=plt.figure()
+    plt.close(fig)
     ## save the figre to binary file     
     fig.savefig(tmpfile, format='png')
     ## encoding it using base64

@@ -40,13 +40,13 @@ def index(request):
     experiments=[]
     steps = []
     name = 'blub'
-    commands=['set_data', 'reset', 'add', 'remove',"filling Missing values","new_experiment"]
+    commands=["new_experiment"]
     ##load experiments
     try:
         project_file=open(path+"/web_app/"+'temp/project.pickle', 'rb')
         if project_file: experiments,current_experiment,commands= pickle.load(project_file)  
         if experiments:  steps=exp.get_experiment_info(experiments,current_experiment)
-        if not commands: commands=['set_data', 'reset', 'add', 'remove',"filling Missing values","new_experiment"]
+        if not commands: commands=["new_experiment"]
     except FileNotFoundError: print("project file not found")    
 
     print(experiments)  
@@ -54,6 +54,7 @@ def index(request):
     manipulate dataframe
     '''
     if request.method == 'POST':
+            
         delete_exp = request.POST.get('delete_experiment')
         if delete_exp: ## delete current experiment
             print("user requested to delete the current experiement "+current_experiment )
@@ -78,10 +79,11 @@ def index(request):
         getting stats type
         '''
         stat_type=request.POST.get('stat_type')
-        print(stat_type)
+        #print(stat_type)
         
-        new_step = request.POST.get('choice')
+        new_step = request.POST.get('new_step')
         if new_step:
+            print("step_selected is: "+ new_step)
             if(new_step=="new_experiment"):
                 print("new experiment was pressed")
                 experiment_id="experiment_"+str(len(experiments))
@@ -116,7 +118,7 @@ def index(request):
     exp.update_experiment_steps(experiments,current_experiment,steps)
     print('steps:',steps)
     print("commands:",commands)
-    print(experiments)
+    #print(experiments)
     ## save it into the project file
     pickle.dump([experiments,current_experiment,commands], open(path+"/web_app/"+'temp/project.pickle', 'wb'))
     

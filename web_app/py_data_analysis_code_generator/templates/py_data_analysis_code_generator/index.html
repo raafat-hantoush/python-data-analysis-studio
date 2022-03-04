@@ -8,12 +8,16 @@
             <p style="margin-left:1em;"> <b>Current Experiment: {{ current_experiment|safe }} 
                 <button type="submit" class="btn btn-danger" name="delete_experiment" value="delete_experiment">delete this experiment</button>
             </p>
+            <br>
     </form>
     <div class="container-fluid">
         <div class="row row-height" >
-            <div class="col-sm-auto" >
-                {% include "py_data_analysis_code_generator/commands.html" %}
-            </div>
+            <!-- 3 setup a container element -->
+        <div class="col-sm-auto tree_view" >
+        <input id="search-input" class="search-input" autocomplete="off" />
+        <br />
+        <div id="jstree"> </div>
+        </div>
             <div class="col-sm-auto left">
                 {% include "py_data_analysis_code_generator/command_list.html" %}
             </div>
@@ -34,5 +38,104 @@
             </div>
         </div>
       </div>
+      <div>
+        {% include "py_data_analysis_code_generator/commands.html" %}
+      </div>
+      <form id="new_step_submit_hidden" style="visibility:hidden" action="/code-generator/" method="post">
+        {% csrf_token %}
+        <input type="text" id="new_step" name="new_step" value=""><br>
+    </form>
     <p></p>
+
+    <!-- Jquery for Jstree -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+    {% csrf_token %}
+    <script>
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    </script>
+    {% csrf_token %}
+    <script>
+        $(function () {
+            var jsondata
+            $.getJSON('../static/py_data_analysis_code_generator/tree_view_items.json', function(data) {         
+                console.log(data);
+                jsondata=data;
+                createJSTree(jsondata);
+                });
+            });
+
+        function createJSTree(jsondata) {
+            $('#jstree').jstree({
+                "core": {     
+                    "themes": {
+                        "name": "default",
+                        "dots": false,
+                        "icons": true
+                    },               
+                    'data': jsondata
+                },
+                "plugins": ["search","themes"],
+                "search": {
+                    "case_sensitive": false,
+                    "show_only_matches": true
+                }
+            });
+           // $("#jstree").jstree("set_theme", "apple"); 
+            // 7 bind to events triggered on the tree
+            $('#jstree').on("changed.jstree", function (e, data) {
+                console.log(data.selected);
+            });
+            // 8 interact with the tree - either way is OK
+            $('#demo').on('click', function () {
+                console.log("pressed")
+                $('#jstree').jstree(true).select_node('child_node_1');
+
+            });
+            // for double click event
+            $('#jstree').bind("dblclick.jstree", function (event) {
+                var tree = $(this).jstree(); 			
+                var node = tree.get_node(event.target); 			
+                var nodePath = tree.get_path(node).join("/");
+                if (node.parent=="#")
+                    console.log("it is parent node")
+                //console.log("double clicked id"+ node.id );
+                //console.log("double clicked text "+ node.text );
+
+                const command_btn = document.getElementById("new_step");
+                command_btn.value=node.id
+                console.log(command_btn.value)
+                document.getElementById("new_step_submit_hidden").submit();
+
+                // AJAX CODE -- user double clicked on a step to add it to the pipeline
+                /*$.ajax({
+                    type: "POST",
+                    headers: {'X-CSRFToken': csrftoken},
+                    url: "/code-generator/",
+                    data: {
+                    new_step:node.id
+                    },
+                    success: function () {
+                        console.log("success")
+                    if (xhr.readyState === 4) {
+                        console.log(xhr.status);
+                        console.log(xhr.responseText);
+                    }},
+                    dataType: "json"
+                });*/
+            });
+
+            $('#jstree').bind("ready.jstree", function (event, data) {
+                $(this).jstree("open_all");
+            });
+        };
+
+        $(document).ready(function () {
+            $(".search-input").keyup(function () {
+                var searchString = $(this).val();
+                $('#jstree').jstree('search', searchString);
+            });
+        });
+    </script>
     {% endblock content %}
+    

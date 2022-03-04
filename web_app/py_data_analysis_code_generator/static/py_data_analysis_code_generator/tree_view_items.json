@@ -4,7 +4,7 @@
     { "id": "lower_cols", "parent": "data_cleaning", "text": "lower columns" },
     { "id": "rename_cols", "parent": "data_cleaning", "text": "rename columns" },
     { "id": "drop_duplicates", "parent": "data_cleaning", "text": "drop duplicates" },
-    { "id": "drop_cols_high_perc_missing", "parent": "data_cleaning", "text": "drop features with high % of missing values" },
+    { "id": "drop_cols_high_perc_missing", "parent": "data_cleaning", "text": "drop high % of missing values" },
     { "id": "convert_cols_type", "parent": "data_cleaning", "text": "convert data type" },
     { "id": "filter_rows_by_cond", "parent": "data_cleaning", "text": "filter pandas rows by condition" },
     { "id": "filter_rows_by_index", "parent": "data_cleaning", "text": "filter pandas rows by index" },

@@ -3,53 +3,56 @@
     {% block content%}
     {% load static %}
     <link rel="stylesheet" href="{% static 'py_data_analysis_code_generator/style.css' %}">
+    
+    <link rel="stylesheet" href="{% static 'py_data_analysis_code_generator/dist/themes/default/style.min.css' %}" />
     <form action="" method="post">
         {% csrf_token %}
-            <p style="margin-left:1em;"> <b>Current Experiment: {{ current_experiment|safe }} 
-                <button type="submit" class="btn btn-danger" name="delete_experiment" value="delete_experiment">delete this experiment</button>
-            </p>
+            <span style="margin-left:1em;"> Current Experiment: {{ current_experiment|safe }} 
+                <button type="submit" class="btn btn-danger btn-sm" name="delete_experiment" value="delete_experiment">delete this experiment</button>
+            </span>
             <br>
     </form>
+    <div>
+        {% include "py_data_analysis_code_generator/commands.html" %}
+    </div>
     <div class="container-fluid">
         <div class="row row-height" >
             <!-- 3 setup a container element -->
-        <div class="col-sm-auto tree_view" >
-        <input id="search-input" class="search-input" autocomplete="off" />
-        <br />
-        <div id="jstree"> </div>
-        </div>
+            <div class="col-sm-auto tree_view" >
+                <input id="search-input" class="search-input" autocomplete="off" />
+                <br />
+                <div id="jstree"> </div>
+            </div>
             <div class="col-sm-auto left">
                 {% include "py_data_analysis_code_generator/command_list.html" %}
             </div>
-            <div class="col-7">
+            <div class="col-6">
                     {{ dataframe|safe }}
+                    <form action="" method="post">
+                    {% csrf_token %}
                     <button type="submit" class="btn btn-success" name="stat_type" value="numericals">Numercials</button>
                     <button type="submit" class="btn btn-success" name="stat_type" value="categoricals">Categoricals</button>
                     <button type="submit" class="btn btn-success" name="plot_type" value="hist">Histogram</button>
                     <button type="submit" class="btn btn-success" name="plot_type" value="corr_heatmap">Corr Heatmap</button>
                     <button type="submit" class="btn btn-success" name="plot_type" value="boxplot">Boxplot</button>
                     <button type="submit" class="btn btn-success" name="plot_type" value="pairplot">Pairplot</button>
-                    
+                    </form>
                     <div style="white-space: pre-line">
-                    {{ stats|safe }}
+                        {{ stats|safe }}
                     </div>
                     <img src="data:image/png;base64,{{plt_encoded|safe}}" alt="" 
                     , width="100%">
             </div>
         </div>
       </div>
-      <div>
-        {% include "py_data_analysis_code_generator/commands.html" %}
-      </div>
       <form id="new_step_submit_hidden" style="visibility:hidden" action="/code-generator/" method="post">
         {% csrf_token %}
         <input type="text" id="new_step" name="new_step" value=""><br>
     </form>
-    <p></p>
-
     <!-- Jquery for Jstree -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+    <script src="{% static 'py_data_analysis_code_generator/dist/jstree.min.js' %}"></script>
+    {% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script> {% endcomment %}
     {% csrf_token %}
     <script>
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -67,15 +70,23 @@
 
         function createJSTree(jsondata) {
             $('#jstree').jstree({
+                "types" : {
+                    "default-small" : {
+                      "icon" : "glyphicon glyphicon-flash"
+                    },
+                    "demo" : {
+                      "icon" : "glyphicon glyphicon-ok"
+                    }
+                  },
                 "core": {     
                     "themes": {
-                        "name": "default",
+                        "name": "default-small",
                         "dots": false,
                         "icons": true
                     },               
                     'data': jsondata
                 },
-                "plugins": ["search","themes"],
+                "plugins": ["search","themes","types"],
                 "search": {
                     "case_sensitive": false,
                     "show_only_matches": true

@@ -1,12 +1,14 @@
 {% block command_fields %}
 
-<div class="col-lg-12">
+<div style="margin:10px">
+    <form action="" method="post">
+    {% csrf_token %}
+    <p>
     {% for elem in commands %}
-        <form action="" method="post">
-            {% csrf_token %}
-                <button type="submit" class="btn btn-primary" name="new_step" value={{ elem }}>{{ elem }}</button>
-        </form>
-       <p></p>
-    {% endfor %}
+            
+                <button type="submit" class="btn btn-primary btn-sm mb-1" name="new_step" value={{ elem }}>{{ elem }}</button>
+    {% endfor %} 
+    </p>
+</form>
 </div>
 {% endblock command_fields %}

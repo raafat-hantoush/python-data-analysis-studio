@@ -3,7 +3,6 @@
     {% block content%}
     {% load static %}
     <link rel="stylesheet" href="{% static 'py_data_analysis_code_generator/style.css' %}">
-    
     <link rel="stylesheet" href="{% static 'py_data_analysis_code_generator/dist/themes/default/style.min.css' %}" />
     <form action="" method="post">
         {% csrf_token %}
@@ -37,11 +36,18 @@
                     <button type="submit" class="btn btn-success" name="plot_type" value="boxplot">Boxplot</button>
                     <button type="submit" class="btn btn-success" name="plot_type" value="pairplot">Pairplot</button>
                     </form>
-                    <div style="white-space: pre-line">
-                        {{ stats|safe }}
-                    </div>
-                    <img src="data:image/png;base64,{{plt_encoded|safe}}" alt="" 
-                    , width="100%">
+                    {% if stats %} 
+                        <div style="white-space: pre-line">
+                            {{ stats|safe }}
+                        </div>
+                    {% endif %}
+                    
+                    {% if plt_encoded %} 
+                        <img src="data:image/png;base64,{{plt_encoded|safe}}" alt="" , width="100%"> 
+                    {% endif %}
+                    {% if code_exception_msg %}
+                        <textArea name="code_error_txtarea" spellcheck="false" rows=20 cols=100 style="background-color: #F5F5F5;color:red">{{code_exception_msg|safe}}</textArea>
+                    {% endif %}
             </div>
         </div>
       </div>
@@ -101,7 +107,6 @@
             $('#demo').on('click', function () {
                 console.log("pressed")
                 $('#jstree').jstree(true).select_node('child_node_1');
-
             });
             // for double click event
             $('#jstree').bind("dblclick.jstree", function (event) {
@@ -148,5 +153,16 @@
             });
         });
     </script>
+    <script>
+        function expandTextarea(name) {
+            document.getElementsByName(name).forEach((item) => {
+                item.addEventListener('keyup', () => {
+                  item.style.overflow = 'hidden';
+                  item.style.height = 0;
+                  item.style.height = item.scrollHeight + 'px';
+                });
+            });
+        }
+        expandTextarea('step_cell_txtarea');
+    </script>
     {% endblock content %}
-    

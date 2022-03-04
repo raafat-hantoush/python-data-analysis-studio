@@ -37,6 +37,7 @@ def index(request):
     plot_type=""
     stat_type=""
     current_experiment=""
+    code_exception_msg=""
     experiments=[]
     steps = []
     name = 'blub'
@@ -110,7 +111,14 @@ def index(request):
             cnt = df.shape[0]
             name = chr(np.random.randint(200))
             df[name] = np.random.randint(10, size=cnt)
-            
+            print(request.POST.get("step_cell_txtarea"))
+            try:
+                exec(request.POST.get("step_cell_txtarea"))
+                
+            except Exception as e:
+                print(str(e))
+                code_exception_msg=str(e)
+                
         if res == 'remove':
             df.drop(df.columns[-1], axis='columns', inplace=True)
     
@@ -132,11 +140,15 @@ def index(request):
     
     content['attributes'] = []
     content['dataframe'] = frame_html
-    content["stats"]=get_stats_html(df,stat_type)
-    content["plt_encoded"]=plot_vizualisation(df,plot_type)
+    if stat_type!="":
+        content["stats"]=get_stats_html(df,stat_type)
+    if plot_type!="":
+        content["plt_encoded"]=plot_vizualisation(df,plot_type)
     content['commands'] = commands
     content['steps'] = steps
     content['current_experiment'] = current_experiment
+    
+    content["code_exception_msg"]=code_exception_msg
     #print(content)
     '''
     save changed dataframe in temp dictionary

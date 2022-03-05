@@ -1,19 +1,19 @@
-
     {% extends "py_data_analysis_code_generator/base.html" %}
     {% block content%}
     {% load static %}
     <link rel="stylesheet" href="{% static 'py_data_analysis_code_generator/style.css' %}">
     <link rel="stylesheet" href="{% static 'py_data_analysis_code_generator/dist/themes/default/style.min.css' %}" />
-    <form action="" method="post">
-        {% csrf_token %}
-            <span style="margin-left:1em;"> Current Experiment: {{ current_experiment|safe }} 
-                <button type="submit" class="btn btn-danger btn-sm" name="delete_experiment" value="delete_experiment">delete this experiment</button>
-            </span>
-            <br>
-    </form>
     <div>
         {% include "py_data_analysis_code_generator/commands.html" %}
     </div>
+    <form action="" method="post">
+        {% csrf_token %}
+            <span style="margin-left:1em;"> Current Experiment: {{ current_experiment|safe }} 
+                <button type="submit" class="btn btn-danger btn-sm" name="delete_experiment" 
+                value="delete_experiment">delete this experiment</button>
+            </span>
+            <br>
+    </form>
     <div class="container-fluid">
         <div class="row row-height" >
             <!-- 3 setup a container element -->
@@ -26,9 +26,12 @@
                 {% include "py_data_analysis_code_generator/command_list.html" %}
             </div>
             <div class="col-6">
+                <div style="overflow-x: auto;">
                     {{ dataframe|safe }}
+                </div>
                     <form action="" method="post">
                     {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn-sm" name="toggle_code" value=False>Toggle code</button>
                     <button type="submit" class="btn btn-success" name="stat_type" value="numericals">Numercials</button>
                     <button type="submit" class="btn btn-success" name="stat_type" value="categoricals">Categoricals</button>
                     <button type="submit" class="btn btn-success" name="plot_type" value="hist">Histogram</button>
@@ -55,6 +58,7 @@
         {% csrf_token %}
         <input type="text" id="new_step" name="new_step" value=""><br>
     </form>
+
     <!-- Jquery for Jstree -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
     <script src="{% static 'py_data_analysis_code_generator/dist/jstree.min.js' %}"></script>
@@ -63,6 +67,7 @@
     <script>
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     </script>
+    
     {% csrf_token %}
     <script>
         $(function () {
@@ -117,7 +122,6 @@
                     console.log("it is parent node")
                 //console.log("double clicked id"+ node.id );
                 //console.log("double clicked text "+ node.text );
-
                 const command_btn = document.getElementById("new_step");
                 command_btn.value=node.id
                 console.log(command_btn.value)

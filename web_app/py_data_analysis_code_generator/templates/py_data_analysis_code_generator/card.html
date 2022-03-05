@@ -1,0 +1,30 @@
+{% load static %}
+<script src="{% static 'py_data_analysis_code_generator/codemirror/lib/codemirror.js' %}"></script>
+<link rel="stylesheet" href={% static 'py_data_analysis_code_generator/codemirror/lib/codemirror.css' %}>
+<script src="{% static 'py_data_analysis_code_generator/codemirror/mode/python/python.js'%}"></script>
+<form action="" method="post">
+    {% csrf_token %}
+    <div class="card" draggable="true" style="width: 35rem;">
+        <div id="card-body-div" class="card-body">
+          <h6 class="card-title">{{ elem }}</h6>
+          <p class="card-text">make the column names lower</p>
+          {% if toggle_code %}
+          <span hidden>
+            <textArea class="step_cell_txtarea" name="step_cell_txtarea" spellcheck="false" 
+            rows=5 cols=45 style="background-color: #F5F5F5;"></textArea>
+          </span>
+          {% else %}
+            <span >
+                <textArea class="step_cell_txtarea" name="step_cell_txtarea" spellcheck="false" 
+                rows=5 cols=45 style="background-color: #F5F5F5;"></textArea>
+            </span>
+          {% endif %}
+          </span>
+        </div>
+        <div aria-label="Basic example" style="margin:5px">
+            <button type="submit" class="btn-primary btn-sm  ml-10" name="start" value="run">Run</button>
+            <button type="submit" class="btn-primary btn-sm  ml-10" name="start" value="run-all-above">Run All Above</button>
+            <button type="submit" class="btn-primary btn-sm btn-danger  ml-10" name="start" value="remove">Remove</button>
+        </div>
+    </div>
+</form>

@@ -1,20 +1,25 @@
 {% block command_list %}
-    {% for elem in steps %}
-        <form action="" method="post">
-            {% csrf_token %}
-            <div class="card" draggable="true" style="width: 28rem;">
-                <div class="card-body">
-                  <h6 class="card-title">{{ elem }}</h6>
-                  <p class="card-text"></p>
-                  <textArea name="step_cell_txtarea" spellcheck="false" rows=5 cols=45 style="background-color: #F5F5F5;"></textArea>
-                </div>
-                <div class="btn-group" role="group" aria-label="Basic example">
-                    <button type="submit" class="btn btn-success btn-sm" name="start" value="apply">apply</button>
-                    <button type="submit" class="btn btn-danger btn-sm" name="start" value="remove">remove</button>
-                </div>
-            </div>
-        </form>
-        
-        <p></p>
-    {% endfor %}
+{% load static %}
+<script src="{% static 'py_data_analysis_code_generator/codemirror/lib/codemirror.js' %}"></script>
+<link rel="stylesheet" href={% static 'py_data_analysis_code_generator/codemirror/lib/codemirror.css' %}>
+<script src="{% static 'py_data_analysis_code_generator/codemirror/mode/python/python.js'%}"></script>
+
+{% for elem in steps  %}
+    {% include "py_data_analysis_code_generator/card.html" %}
+    <p></p>
+{%  endfor %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function(){
+        var textareas = document.getElementsByClassName("step_cell_txtarea"); 
+        for (let i = 0; i < textareas.length; i++){
+            CodeMirror.fromTextArea(textareas[i], {
+                value: "def test():return true;\n",
+                lineNumbers: true,
+                mode:  "python"
+            });
+        }
+    })
+    </script>
 {% endblock command_list%}

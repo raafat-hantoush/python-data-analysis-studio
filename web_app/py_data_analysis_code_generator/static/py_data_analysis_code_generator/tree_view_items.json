@@ -11,10 +11,11 @@
     { "id": "set_cols_values_by_cond", "parent": "data_cleaning", "text": "update pandas values" },
     { "id": "fill_missing_vals", "parent": "data_cleaning", "text": "filling missing values" },
     { "id": "remove_outliers", "parent": "data_cleaning", "text": "remove outliers" },
-    { "id": "add", "parent": "data_cleaning", "text": "add" },
     { "id": "reset", "parent": "data_cleaning", "text": "reset" },
-    { "id": "remove", "parent": "data_cleaning", "text": "remove" },
+
     { "id": "feature_selection", "parent": "#", "text": "Feature Selection" },
+    { "id": "drop_cols", "parent": "feature_selection", "text": "drop columns" },
+
     { "id": "feature_engineering", "parent": "#", "text": "Feature Engineering" },
     { "id": "feature_transformation", "parent": "#", "text": "Feature Transformation" }, 
     { "id": "data_sampling", "parent": "#", "text": "Data Sampling" },

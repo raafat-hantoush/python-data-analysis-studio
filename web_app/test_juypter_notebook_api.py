@@ -1,6 +1,6 @@
 import os
 ##run a system command
-os.system('jupyter notebook')
+##os.system('jupyter notebook')
 """"""
 import json
 import requests
@@ -18,9 +18,9 @@ headers = {'Authorization': 'Token d623ec84f49f54007bec91f0f89b7cc01a43cbec25197
 
 url = base + '/api/kernels'
 response = requests.post(url,headers=headers)
-print(response)
-kernel = json.loads(response.text)
-
+print(response.content)
+#kernel = json.loads(response.text)
+kernel_id="494b8312-41c6-4023-8d29-beb14b846c7c"
 # Load the notebook and get the code of each cell
 url = base + '/api/contents' + notebook_path
 response = requests.get(url,headers=headers)
@@ -30,7 +30,7 @@ code = [ c['source'] for c in file['content']['cells'] if len(c['source'])>0 ]
 print(code)
 
 # Execution request/reply is done on websockets channels
-ws = create_connection("ws://localhost:8888/api/kernels/"+kernel["id"]+"/channels",
+ws = create_connection("ws://localhost:8888/api/kernels/"+kernel_id+"/channels",
      header=headers)
 
 def send_execute_request(code):
@@ -53,7 +53,7 @@ for c in code:
 # We ignore all the other messages, we just get the code execution output
 # (this needs to be improved for production to take into account errors, large cell output, images, etc.)
 for i in range(0, len(code)):
-    msg_type = '';
+    msg_type = ''
     while msg_type != "stream":
         rsp = json.loads(ws.recv())
         msg_type = rsp["msg_type"]

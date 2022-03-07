@@ -20,7 +20,7 @@ import service.experiments_controller as exp
 from  service.experiments_controller import Experiment
 from service.eda_stats import get_stats_html
 from service.feature_selection import feature_selection_code_dict
-
+import service.jupyter_kernel_executor as kernel
 cmd_handler = Commands()
 
 # Create your views here.
@@ -134,6 +134,7 @@ def index(request):
         
         if(new_step in feature_selection_code_dict):
             new_step_generated_code=feature_selection_code_dict[new_step]["code"]
+            ## populate the 
             print(feature_selection_code_dict[new_step]["code"])
         
         res = request.POST.get('start')
@@ -144,13 +145,15 @@ def index(request):
             df[name] = np.random.randint(10, size=cnt)
             print(request.POST.get("step_cell_txtarea"))
             try:
-                print(exec(request.POST.get("step_cell_txtarea")))
+                
+                code_exception_msg= "\n".join(kernel.execute_code([request.POST.get("step_cell_txtarea")]))
+                """ print(exec(request.POST.get("step_cell_txtarea")))
                 f = StringIO()
                 with redirect_stdout(f):
-                    print(eval(request.POST.get("step_cell_txtarea")))
+                    print(exec(request.POST.get("step_cell_txtarea")))
                 s = f.getvalue()
                 print(s)
-                code_exception_msg=str(s)
+                code_exception_msg=str(s) """
                 
             except Exception as e:
                 print(str(e))
@@ -172,7 +175,7 @@ def index(request):
     '''
 
     content = {}
-    frame_html = pd.DataFrame.to_html(df, max_rows=9, max_cols=10, justify='justify-all', show_dimensions=True, bold_rows=False)
+    frame_html = pd.DataFrame.to_html(df, max_rows=7, max_cols=100, justify='justify-all', show_dimensions=True, bold_rows=False)
     frame_html = frame_html.replace('<table border="1" class="dataframe">', '<table border="1" class="table table-dark table-sm table-responsive">')
     
     content['attributes'] = []

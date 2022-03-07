@@ -14,12 +14,20 @@ feature_selection_code_dict={
         {
             "name":"drop columns",
             "type":"feature_selection",
-            "code":"pd.DataFrame.drop(df,columns=[\"zone\"],inplace=True)"
+            "code":"pd.DataFrame.drop(df,columns=[\"\"],inplace=True)"
         },
     "lower_cols":
         {
             "name":"lower columns",
             "type":"data_cleaning",
             "code":"df.columns= df.columns.str.lower()"
+        },
+    
+    "reset":
+        {
+            "name":"reset",
+            "type":"data_cleaning",
+            "code":"df=pd.read_csv(\"work_file.csv\")"
         }
+        
 }

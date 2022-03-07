@@ -14,7 +14,7 @@ feature_selection_code_dict={
         {
             "name":"drop columns",
             "type":"feature_selection",
-            "code":"pd.DataFrame.drop(df,columns=['zone'],inplace=True)"
+            "code":"pd.DataFrame.drop(df,columns=[\"zone\"],inplace=True)"
         },
     "lower_cols":
         {

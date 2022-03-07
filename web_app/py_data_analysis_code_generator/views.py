@@ -8,7 +8,8 @@ from django.http import HttpResponseRedirect
 import numpy as np
 import pandas as pd
 import pickle
-
+from io import StringIO
+from contextlib import redirect_stdout
 
 '''
 import modules
@@ -42,6 +43,7 @@ def index(request):
     code_exception_msg=""
     experiments=[]
     steps = []
+    new_step_generated_code=""
     name = 'blub'
     commands=["new_experiment"]
     settings={"toggle_code":False}
@@ -104,8 +106,10 @@ def index(request):
                 print("new experiment was pressed")
                 experiment_id="experiment_"+str(len(experiments))
                 print("current experiment is "+ experiment_id)
+                current_experiment=experiment_id
+                steps=[]
                 commands.append(experiment_id)
-                experiment=exp.Experiment(experiment_id,[],[],[])
+                experiment=exp.Experiment(experiment_id)
                 experiments.append(experiment)
                 pickle.dump([experiments,current_experiment,commands,settings],open(path+"/web_app/"+'temp/project.pickle', 'wb'))
             
@@ -129,6 +133,7 @@ def index(request):
                     df = res['dataframe']
         
         if(new_step in feature_selection_code_dict):
+            new_step_generated_code=feature_selection_code_dict[new_step]["code"]
             print(feature_selection_code_dict[new_step]["code"])
         
         res = request.POST.get('start')
@@ -139,7 +144,13 @@ def index(request):
             df[name] = np.random.randint(10, size=cnt)
             print(request.POST.get("step_cell_txtarea"))
             try:
-                exec(request.POST.get("step_cell_txtarea"))
+                print(exec(request.POST.get("step_cell_txtarea")))
+                f = StringIO()
+                with redirect_stdout(f):
+                    print(eval(request.POST.get("step_cell_txtarea")))
+                s = f.getvalue()
+                print(s)
+                code_exception_msg=str(s)
                 
             except Exception as e:
                 print(str(e))
@@ -166,17 +177,23 @@ def index(request):
     
     content['attributes'] = []
     content['dataframe'] = frame_html
+    
     if toggle_code is not None :
          content["toggle_code"]=toggle_code
+         
     if stat_type!="" and stat_type is not None :
         content["stats"]=get_stats_html(df,stat_type)
+        
     if plot_type!="" and plot_type is not None:
         content["plt_encoded"]=plot_vizualisation(df,plot_type)
+        
     content['commands'] = commands
     content['steps'] = steps
     content['current_experiment'] = current_experiment
     
     content["code_exception_msg"]=code_exception_msg
+    
+    content["new_step_generated_code"]=new_step_generated_code
     #print(content)
     '''
     save changed dataframe in temp dictionary

@@ -14,11 +14,17 @@
     $(document).ready(function(){
         var textareas = document.getElementsByClassName("step_cell_txtarea"); 
         for (let i = 0; i < textareas.length; i++){
+            if (i==textareas.length -1){ // text area for the last step
+                console.log("last step");
+                textareas[i].innerHTML="{{new_step_generated_code|default:''  }}"
+                textareas[i].focus()
+            }
+            
             CodeMirror.fromTextArea(textareas[i], {
-                value: "def test():return true;\n",
                 lineNumbers: true,
                 mode:  "python"
             });
+            
         }
     })
     </script>

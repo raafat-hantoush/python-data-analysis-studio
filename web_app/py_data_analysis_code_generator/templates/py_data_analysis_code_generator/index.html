@@ -26,7 +26,7 @@
                 {% include "py_data_analysis_code_generator/command_list.html" %}
             </div>
             <div class="col-6">
-                <div style="overflow-x: auto;">
+                <div style="height: 50vh;;overflow-y:auto;overflow-x:auto">
                     {{ dataframe|safe }}
                 </div>
                     <form action="" method="post">
@@ -48,8 +48,8 @@
                     {% if plt_encoded %} 
                         <img src="data:image/png;base64,{{plt_encoded|safe}}" alt="" , width="100%"> 
                     {% endif %}
-                    {% if code_exception_msg %}
-                        <textArea name="code_error_txtarea" spellcheck="false" rows=20 cols=100 style="background-color: #F5F5F5;color:red">{{code_exception_msg|safe}}</textArea>
+                    {% if code_output_msg %}
+                        <textArea name="code_error_txtarea" spellcheck="false" rows=20 cols=100 style="background-color: #F5F5F5;color:red">{{code_output_msg}}</textArea>
                     {% endif %}
             </div>
         </div>

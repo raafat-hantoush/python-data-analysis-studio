@@ -1,15 +1,8 @@
-#from copyreg import pickle
-from ast import Try
-from cmath import exp
-from distutils import command
-from turtle import st
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 import numpy as np
 import pandas as pd
 import pickle
-from io import StringIO
-from contextlib import redirect_stdout
 
 '''
 import modules
@@ -34,13 +27,13 @@ def index(request):
     # get current directory
     path = os.getcwd()
     #print("Current Directory", path)
-    df = pd.read_pickle(path+"/web_app/"+'temp/tmp.pkl')
+    ##df = pd.read_pickle(path+"/web_app/"+'temp/tmp.pkl')
 
     toggle_code=None
     plot_type=""
     stat_type=""
     current_experiment=""
-    code_exception_msg=""
+    code_output_msg=""
     experiments=[]
     steps = []
     new_step_generated_code=""
@@ -127,55 +120,54 @@ def index(request):
             print("step_selected is: "+ new_step)
 
             steps.append(new_step)
-            res = cmd_handler.input_command(new_step, {'filepath':path+"/web_app/"+'temp/work_file.csv'})
+            
+            """ res = cmd_handler.input_command(new_step, {'filepath':path+"/web_app/"+'temp/work_file.csv'})
             if res:
                 if 'dataframe' in res:
-                    df = res['dataframe']
+                    df = res['dataframe'] """
         
         if(new_step in feature_selection_code_dict):
             new_step_generated_code=feature_selection_code_dict[new_step]["code"]
-            ## populate the 
             print(feature_selection_code_dict[new_step]["code"])
         
         res = request.POST.get('start')
         
         if res == 'run':
-            cnt = df.shape[0]
+            """ cnt = df.shape[0]
             name = chr(np.random.randint(200))
-            df[name] = np.random.randint(10, size=cnt)
+            df[name] = np.random.randint(10, size=cnt) """
+            
             print(request.POST.get("step_cell_txtarea"))
             try:
-                
-                code_exception_msg= "\n".join(kernel.execute_code([request.POST.get("step_cell_txtarea")]))
-                """ print(exec(request.POST.get("step_cell_txtarea")))
-                f = StringIO()
-                with redirect_stdout(f):
-                    print(exec(request.POST.get("step_cell_txtarea")))
-                s = f.getvalue()
-                print(s)
-                code_exception_msg=str(s) """
-                
+                code_output_msg= "\n".join(kernel.execute_code([request.POST.get("step_cell_txtarea")]))
             except Exception as e:
                 print(str(e))
-                code_exception_msg=str(e)
+                code_output_msg=str(e)
                 
         if res == 'remove':
-            df.drop(df.columns[-1], axis='columns', inplace=True)
-    
+            try:
+                kernel.execute_code(["df.drop(df.columns[-1], axis='columns', inplace=True)"])
+            except Exception as e:
+                print(str(e))
+                code_output_msg=str(e)
+                
     ## update the experiment steps
     exp.update_experiment_steps(experiments,current_experiment,steps)
     print('steps:',steps)
     print("commands:",commands)
     #print(experiments)
+    
     ## save it into the project file
     pickle.dump([experiments,current_experiment,commands,settings], open(path+"/web_app/"+'temp/project.pickle', 'wb'))
     
     '''
     convert dataframe to readable html content
     '''
-
     content = {}
-    frame_html = pd.DataFrame.to_html(df, max_rows=7, max_cols=100, justify='justify-all', show_dimensions=True, bold_rows=False)
+    frame_json=kernel.execute_code(["pd.DataFrame.to_json(df,orient='columns')"])[0]
+    df=pd.read_json(frame_json[1:-1],orient='columns')
+    #pd.DataFrame.to_html(df, max_rows=20, max_cols=100, justify='justify-all', show_dimensions=True, bold_rows=False)"])[0]
+    frame_html = pd.DataFrame.to_html(df, max_rows=20, max_cols=100, justify='justify-all', show_dimensions=True, bold_rows=False)
     frame_html = frame_html.replace('<table border="1" class="dataframe">', '<table border="1" class="table table-dark table-sm table-responsive">')
     
     content['attributes'] = []
@@ -194,13 +186,13 @@ def index(request):
     content['steps'] = steps
     content['current_experiment'] = current_experiment
     
-    content["code_exception_msg"]=code_exception_msg
+    content["code_output_msg"]=code_output_msg
     
     content["new_step_generated_code"]=new_step_generated_code
     #print(content)
     '''
     save changed dataframe in temp dictionary
     '''
-    pd.to_pickle(df, path+"/web_app/"+'temp/tmp.pkl')
+    #pd.to_pickle(df, path+"/web_app/"+'temp/tmp.pkl')
 
     return render(request, 'py_data_analysis_code_generator/index.html', context=content)

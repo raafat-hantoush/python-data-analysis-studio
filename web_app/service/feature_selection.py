@@ -27,7 +27,6 @@ feature_selection_code_dict={
         {
             "name":"reset",
             "type":"data_cleaning",
-            "code":"df=pd.read_csv(\"work_file.csv\")"
+            "code":"df=pd.read_csv(\"Documents/GitHub/general/work_file.csv\")"
         }
-        
 }

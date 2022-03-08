@@ -8,11 +8,10 @@
     </div>
     <form action="" method="post">
         {% csrf_token %}
-            <span style="margin-left:1em;"> Current Experiment: {{ current_experiment|safe }} 
+            <div class="mb-2"> Current Experiment: {{ current_experiment|safe }} 
                 <button type="submit" class="btn btn-danger btn-sm" name="delete_experiment" 
                 value="delete_experiment">delete this experiment</button>
-            </span>
-            <br>
+            </div>
     </form>
     <div class="container-fluid">
         <div class="row row-height" >
@@ -23,7 +22,7 @@
                 <div id="jstree"> </div>
             </div>
             <div class="col-sm-auto left">
-                {% include "py_data_analysis_code_generator/command_list.html" %}
+                {% include "py_data_analysis_code_generator/steps_list.html" %}
             </div>
             <div class="col-6">
                 <div style="height: 50vh;;overflow-y:auto;overflow-x:auto">

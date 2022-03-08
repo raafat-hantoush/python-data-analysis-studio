@@ -7,14 +7,12 @@ import pickle
 '''
 import modules
 '''
-from service.mods_panda import Commands
 from  service.eda_plotting import plot_vizualisation
 import service.experiments_controller as exp
 from  service.experiments_controller import Experiment
 from service.eda_stats import get_stats_html
 from service.feature_selection import feature_selection_code_dict
 import service.jupyter_kernel_executor as kernel
-cmd_handler = Commands()
 
 # Create your views here.
 def index(request):
@@ -35,16 +33,18 @@ def index(request):
     current_experiment=""
     code_output_msg=""
     experiments=[]
-    steps = []
-    new_step_generated_code=""
+    steps,steps_desc,steps_codes = [],[],[]
+    new_step_generated_code,new_step_generated_desc="",""
     name = 'blub'
     commands=["new_experiment"]
     settings={"toggle_code":False}
-    ##load experiments
+    ##load experiments 
     try:
         project_file=open(path+"/web_app/"+'temp/project.pickle', 'rb')
         if project_file: experiments,current_experiment,commands,settings= pickle.load(project_file)  
-        if experiments:  steps=exp.get_experiment_info(experiments,current_experiment)
+        if experiments:  
+            steps,steps_desc,steps_codes=exp.get_experiment_info(experiments,current_experiment)
+            print("steps_codes are: " ,steps_codes)
         if not commands: commands=["new_experiment"]
         if not settings: settings={"toggle_code":False}
     except FileNotFoundError: print("project file not found")    
@@ -100,7 +100,7 @@ def index(request):
                 experiment_id="experiment_"+str(len(experiments))
                 print("current experiment is "+ experiment_id)
                 current_experiment=experiment_id
-                steps=[]
+                steps,steps_desc,steps_codes=[],[],[]
                 commands.append(experiment_id)
                 experiment=exp.Experiment(experiment_id)
                 experiments.append(experiment)
@@ -109,9 +109,18 @@ def index(request):
             elif(command_selected.startswith("experiment_")):
                 current_experiment=command_selected
                 print("specific "+ current_experiment+ " was pressed")
-                steps=exp.get_experiment_info(experiments,current_experiment)
+                steps,steps_desc,steps_codes=exp.get_experiment_info(experiments,current_experiment)
             else: pass
             
+        ''' 
+        save experiment steps
+        '''    
+        new_steps = request.POST.get('steps')
+        if new_steps:
+            print("here new updated steps " + new_steps.split(',')[0])
+            steps=new_steps.split(',')
+            steps_desc=request.POST.get('steps_desc').split(',')
+            steps_codes=request.POST.get('steps_codes').split(',')
         '''
         experiment step
         '''
@@ -126,10 +135,20 @@ def index(request):
                 if 'dataframe' in res:
                     df = res['dataframe'] """
         
-        if(new_step in feature_selection_code_dict):
-            new_step_generated_code=feature_selection_code_dict[new_step]["code"]
-            print(feature_selection_code_dict[new_step]["code"])
-        
+            if(new_step in feature_selection_code_dict):
+                new_step_generated_desc=feature_selection_code_dict[new_step]["desc"]
+                new_step_generated_code=feature_selection_code_dict[new_step]["code"]
+                print(feature_selection_code_dict[new_step]["code"])
+                print(feature_selection_code_dict[new_step]["desc"])
+                steps_desc.append(new_step_generated_desc)
+                steps_codes.append(new_step_generated_code)
+            else:
+                steps_desc.append("")
+                steps_codes.append("")
+            
+        '''
+        run commands 
+        '''
         res = request.POST.get('start')
         
         if res == 'run':
@@ -137,9 +156,9 @@ def index(request):
             name = chr(np.random.randint(200))
             df[name] = np.random.randint(10, size=cnt) """
             
-            print(request.POST.get("step_cell_txtarea"))
+            print(request.POST.get("step_code"))
             try:
-                code_output_msg= "\n".join(kernel.execute_code([request.POST.get("step_cell_txtarea")]))
+                code_output_msg= "\n".join(kernel.execute_code([request.POST.get("step_code")]))
             except Exception as e:
                 print(str(e))
                 code_output_msg=str(e)
@@ -150,12 +169,14 @@ def index(request):
             except Exception as e:
                 print(str(e))
                 code_output_msg=str(e)
-                
+    print("steps_codes here : " ,steps_codes)
+            
     ## update the experiment steps
-    exp.update_experiment_steps(experiments,current_experiment,steps)
+    exp.update_experiment_steps(experiments,current_experiment,steps,steps_desc,steps_codes)
     print('steps:',steps)
+    print('steps_desc:',steps_desc)
+    print('steps_code:',steps_codes)
     print("commands:",commands)
-    #print(experiments)
     
     ## save it into the project file
     pickle.dump([experiments,current_experiment,commands,settings], open(path+"/web_app/"+'temp/project.pickle', 'wb'))
@@ -164,13 +185,18 @@ def index(request):
     convert dataframe to readable html content
     '''
     content = {}
-    frame_json=kernel.execute_code(["pd.DataFrame.to_json(df,orient='columns')"])[0]
-    df=pd.read_json(frame_json[1:-1],orient='columns')
+    try:
+        frame_json=kernel.execute_code(["pd.DataFrame.to_json(df,orient='columns')"])[0]
+        df=pd.read_json(frame_json[1:-1],orient='columns')
+    except Exception as e:
+                print(str(e))
+                code_output_msg=str(e)
+                
     #pd.DataFrame.to_html(df, max_rows=20, max_cols=100, justify='justify-all', show_dimensions=True, bold_rows=False)"])[0]
     frame_html = pd.DataFrame.to_html(df, max_rows=20, max_cols=100, justify='justify-all', show_dimensions=True, bold_rows=False)
-    frame_html = frame_html.replace('<table border="1" class="dataframe">', '<table border="1" class="table table-dark table-sm table-responsive">')
+    frame_html = frame_html.replace('<table border="1" class="dataframe">', '<table border="1" class="table table-sm table-responsive">')
     
-    content['attributes'] = []
+    #content['attributes'] = []
     content['dataframe'] = frame_html
     
     if toggle_code is not None :
@@ -183,13 +209,17 @@ def index(request):
         content["plt_encoded"]=plot_vizualisation(df,plot_type)
         
     content['commands'] = commands
-    content['steps'] = steps
+    
+    #steps=["test this"]
+    #steps_desc=["step des"]
+    #steps_codes=[""]
+    
+    content['steps'] = zip(steps,steps_desc,steps_codes)
     content['current_experiment'] = current_experiment
-    
     content["code_output_msg"]=code_output_msg
-    
     content["new_step_generated_code"]=new_step_generated_code
-    #print(content)
+    content["new_step_generated_desc"]=new_step_generated_desc
+
     '''
     save changed dataframe in temp dictionary
     '''

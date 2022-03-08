@@ -5,18 +5,18 @@
 <form action="" method="post">
     {% csrf_token %}
     <div class="card" draggable="true" style="width: 35rem;">
-        <div id="card-body-div" class="card-body">
-          <h6 class="card-title">{{ elem }}</h6>
-          <p class="card-text">make the column names lower</p>
+        <div  class="card-body">
+          <h6 class="step_id">{{ step.0 }}</h6>
+          <input type="text" class="step_desc" style="width:100%; border-width:0" value="{{step.1}}"></input>
           {% if toggle_code %}
           <span hidden>
-            <textArea class="step_cell_txtarea" name="step_cell_txtarea" spellcheck="false" 
-            rows=1 cols=45 style="background-color: #F5F5F5;"></textArea>
+            <textArea class="step_code" name="step_code" spellcheck="false" 
+            rows=1 cols=45 style="background-color: #F5F5F5;" >{{step.2}}</textArea>
           </span>
           {% else %}
             <span >
-                <textArea class="step_cell_txtarea" name="step_cell_txtarea" spellcheck="false" 
-                rows=1 cols=45 style="background-color: #F5F5F5;"></textArea>
+                <textArea class="step_code" name="step_code" spellcheck="false" 
+                rows=1 cols=45 style="background-color: #F5F5F5;">{{step.2}}</textArea>
             </span>
           {% endif %}
           </span>
@@ -24,7 +24,7 @@
         <div aria-label="Basic example" style="margin:5px">
             <button type="submit" class="btn-primary btn-sm  ml-10" name="start" value="run">Run</button>
             <button type="submit" class="btn-primary btn-sm  ml-10" name="start" value="run-all-above">Run All Above</button>
-            <button type="submit" class="btn-primary btn-sm btn-danger  ml-10" name="start" value="remove">Remove</button>
+            <button type="button" onclick="remove_element_func(this)" class="btn-primary btn-sm btn-danger  ml-10" name="start" value="remove">Remove</button>
         </div>
     </div>
 </form>

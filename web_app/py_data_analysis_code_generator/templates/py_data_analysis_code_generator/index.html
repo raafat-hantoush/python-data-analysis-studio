@@ -11,6 +11,7 @@
             <div class="mb-2"> Current Experiment: {{ current_experiment|safe }} 
                 <button type="submit" class="btn btn-danger btn-sm" name="delete_experiment" 
                 value="delete_experiment">delete this experiment</button>
+                <button type="button" onclick="save_experiment()" class="btn-primary btn-sm btn-success  ml-10" name="save">Save Experiment</button>
             </div>
     </form>
     <div class="container-fluid">
@@ -48,14 +49,18 @@
                         <img src="data:image/png;base64,{{plt_encoded|safe}}" alt="" , width="100%"> 
                     {% endif %}
                     {% if code_output_msg %}
-                        <textArea name="code_error_txtarea" spellcheck="false" rows=20 cols=100 style="background-color: #F5F5F5;color:red">{{code_output_msg}}</textArea>
-                    {% endif %}
+                        <div class="mt-2">
+                            <textArea name="code_error_txtarea" spellcheck="false" rows=20 cols=100 style="background-color: #F5F5F5;color:red">{{code_output_msg}}</textArea>
+                        </div>
+                        {% endif %}
             </div>
         </div>
       </div>
       <form id="new_step_submit_hidden" style="visibility:hidden" action="/code-generator/" method="post">
         {% csrf_token %}
         <input type="text" id="new_step" name="new_step" value=""><br>
+        <input type="text" id="new_step_desc" name="new_step_desc" value=""><br>
+        <input type="text" id="new_step_code" name="new_step_code" value=""><br>
     </form>
 
     <!-- Jquery for Jstree -->
@@ -72,7 +77,7 @@
         $(function () {
             var jsondata
             $.getJSON('../static/py_data_analysis_code_generator/tree_view_items.json', function(data) {         
-                console.log(data);
+                //console.log(data);
                 jsondata=data;
                 createJSTree(jsondata);
                 });
@@ -102,7 +107,6 @@
                     "show_only_matches": true
                 }
             });
-           // $("#jstree").jstree("set_theme", "apple"); 
             // 7 bind to events triggered on the tree
             $('#jstree').on("changed.jstree", function (e, data) {
                 console.log(data.selected);
@@ -121,9 +125,9 @@
                     console.log("it is parent node")
                 //console.log("double clicked id"+ node.id );
                 //console.log("double clicked text "+ node.text );
-                const command_btn = document.getElementById("new_step");
-                command_btn.value=node.id
-                console.log(command_btn.value)
+                const new_step_elem = document.getElementById("new_step");
+                new_step_elem.value=node.id
+                console.log("new step value: "+new_step_elem.value);
                 document.getElementById("new_step_submit_hidden").submit();
 
                 // AJAX CODE -- user double clicked on a step to add it to the pipeline
@@ -156,7 +160,8 @@
             });
         });
     </script>
-    <script>
+    
+    {% comment %}     <script>
         function expandTextarea(name) {
             document.getElementsByName(name).forEach((item) => {
                 item.addEventListener('keyup', () => {
@@ -166,6 +171,43 @@
                 });
             });
         }
-        expandTextarea('step_cell_txtarea');
+        expandTextarea('step_code');
+    </script> {% endcomment %}
+    
+    {% csrf_token %}
+    <script>
+        function save_experiment(){
+            console.log("save experiment is invoked");
+
+            var steps_ids = document.getElementsByClassName("step_id"); 
+            var steps_desc = document.getElementsByClassName("step_desc"); 
+            var steps_codes = document.getElementsByClassName("step_code"); 
+            var updated_steps_ids = []; var updated_steps_desc=[]; var updated_steps_codes=[];
+    
+            for (let i = 0; i < steps_codes.length; i++){
+                updated_steps_ids.push(steps_ids[i].innerHTML); 
+                updated_steps_desc.push(steps_desc[i].value);
+                updated_steps_codes.push(steps_codes[i].innerText);  
+            }
+                $.ajax({
+                    type: "POST",
+                    headers: {'X-CSRFToken': csrftoken},
+                    url: "/code-generator/",
+                    data: {
+                        steps:updated_steps_ids.join(","),
+                        steps_desc:updated_steps_desc.join(","),
+                        steps_codes:updated_steps_codes.join(',')
+                    },
+                    success: function () {
+                        console.log("success")
+                        if (xhr.readyState === 4) {
+                            console.log(xhr.status);
+                            console.log(xhr.responseText);
+                        }
+                    },
+                    dataType: "json"
+                });
+        }                  
     </script>
+
     {% endblock content %}

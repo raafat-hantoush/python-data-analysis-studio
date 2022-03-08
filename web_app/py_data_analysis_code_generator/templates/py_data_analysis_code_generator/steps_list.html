@@ -4,7 +4,7 @@
 <link rel="stylesheet" href={% static 'py_data_analysis_code_generator/codemirror/lib/codemirror.css' %}>
 <script src="{% static 'py_data_analysis_code_generator/codemirror/mode/python/python.js'%}"></script>
 
-{% for elem in steps  %}
+{% for step in steps  %}
     {% include "py_data_analysis_code_generator/card.html" %}
     <p></p>
 {%  endfor %}
@@ -12,20 +12,40 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
 <script>
     $(document).ready(function(){
-        var textareas = document.getElementsByClassName("step_cell_txtarea"); 
-        for (let i = 0; i < textareas.length; i++){
-            if (i==textareas.length -1){ // text area for the last step
-                console.log("last step");
-                textareas[i].innerHTML="{{new_step_generated_code|default:''  }}"
-                textareas[i].focus()
+        var steps_desc = document.getElementsByClassName("step_desc"); 
+        var steps_codes = document.getElementsByClassName("step_code"); 
+        var cards_divs=document.getElementsByClassName("card"); // for removing step card 
+
+        for (let i = 0; i < steps_codes.length; i++){
+            steps_desc[i].id="step_desc_"+i;
+            steps_codes[i].id="step_code_"+i;
+
+
+            cards_divs[i].id="card_"+i;
+            //console.log(steps_codes[i].id)
+            if (i==steps_codes.length -1){ // text area for the last step
+                console.log("steps codes last step "+steps_desc[i].value)
+                if(steps_desc[i].value==""){
+                    steps_desc[i].innerHTML="{{new_step_generated_desc|default:''  }}"
+                    steps_codes[i].value="{{new_step_generated_code|default:''  }}"
+                }
+                steps_codes[i].focus()
             }
             
-            CodeMirror.fromTextArea(textareas[i], {
+            var editor= CodeMirror.fromTextArea(steps_codes[i], {
                 lineNumbers: true,
                 mode:  "python"
             });
-            
         }
     })
     </script>
+    <script>
+        function remove_element_func(e) {
+            console.log(e.parentNode.parentNode.id);
+            console.log("remove element is invoked!");
+            var element = document.getElementById(e.parentNode.parentNode.id);
+            element.parentNode.removeChild(element);
+          }
+    </script>
+
 {% endblock steps_list%}

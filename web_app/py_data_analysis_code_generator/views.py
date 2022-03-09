@@ -11,7 +11,7 @@ from  service.eda_plotting import plot_vizualisation
 import service.experiments_controller as exp
 from  service.experiments_controller import Experiment
 from service.eda_stats import get_stats_html
-from service.feature_selection import feature_selection_code_dict
+from service.code_generation import generated_code_dict
 import service.jupyter_kernel_executor as kernel
 
 # Create your views here.
@@ -135,11 +135,11 @@ def index(request):
                 if 'dataframe' in res:
                     df = res['dataframe'] """
         
-            if(new_step in feature_selection_code_dict):
-                new_step_generated_desc=feature_selection_code_dict[new_step]["desc"]
-                new_step_generated_code=feature_selection_code_dict[new_step]["code"]
-                print(feature_selection_code_dict[new_step]["code"])
-                print(feature_selection_code_dict[new_step]["desc"])
+            if(new_step in generated_code_dict):
+                new_step_generated_desc=generated_code_dict[new_step]["desc"]
+                new_step_generated_code=generated_code_dict[new_step]["code"]
+                print(generated_code_dict[new_step]["code"])
+                print(generated_code_dict[new_step]["desc"])
                 steps_desc.append(new_step_generated_desc)
                 steps_codes.append(new_step_generated_code)
             else:

@@ -1,15 +1,8 @@
-## Feature Selection
+## Code generation
 '''
-- dropping column/columns
-- dropping highly correlated columns 
-- feature selection using p-value
-- recursive feature elimination RFE
+generated code dictionary
 '''
-
-'''
-dropping column
-'''
-feature_selection_code_dict={
+generated_code_dict={
     "drop_cols":
         {
             "name":"drop columns",
@@ -28,8 +21,25 @@ feature_selection_code_dict={
     "reset":
         {
             "name":"reset",
-            "type":"data_cleaning",
+            "type":"import/export",
             "code":"df=pd.read_csv(\"Documents/GitHub/general/work_file.csv\")",
             "desc":"reload the original data frame from the csv file."
+        },
+    
+    "import_required_libs":
+        {
+            "name":"import_required_libs",
+            "type":"import/export",
+            "code":"import pandas as pd;\nimport numpy as np;\n\
+            ## plotting libraries\nfrom matplotlib import pyplot as plt\nimport seaborn as sns",
+            "desc":"import the required python libraries"
+        },
+    
+    "export_data_tocsv":
+        {
+            "name":"export_data_tocsv",
+            "type":"import/export",
+            "code":"df.to_csv ('', index = None, header=True)",
+            "desc":"export pandas data frame to csv file"
         }
 }

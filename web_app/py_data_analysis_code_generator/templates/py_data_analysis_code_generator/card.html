@@ -6,7 +6,7 @@
     {% csrf_token %}
     <div class="card" draggable="true" style="width: 35rem;">
         <div  class="card-body">
-          <h6 class="step_id">{{ step.0 }}</h6>
+          <h6 class="step_id"><b>{{ step.0 }}</b></h6>
           <input type="text" class="step_desc" style="width:100%; border-width:0" value="{{step.1}}"></input>
           {% if toggle_code %}
           <span hidden>

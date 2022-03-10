@@ -12,6 +12,7 @@ import service.experiments_controller as exp
 from  service.experiments_controller import Experiment
 from service.eda_stats import get_stats_html
 from service.code_generation import load_generated_code_dict
+from service.code_generation import generate_tree_view_json_data
 import service.jupyter_kernel_executor as kernel
 
 # Create your views here.
@@ -27,6 +28,10 @@ def index(request):
     #print("Current Directory", path)
     ##df = pd.read_pickle(path+"/web_app/"+'temp/tmp.pkl')
     generated_code_dict=load_generated_code_dict()
+    '''
+    generate the js tree nodes from the notebook source code template
+    '''
+    generate_tree_view_json_data(path+"/py_data_analysis_code_generator/static/py_data_analysis_code_generator/")
     done=True;result=""
     toggle_code=None
     plot_type=""

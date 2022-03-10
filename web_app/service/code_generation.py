@@ -64,11 +64,36 @@ def load_generated_code_dict():
     generated_code_dict=parse_cells_sources(cells_sources)
     return generated_code_dict
 
+def generate_tree_view_json_data(filepath):
+    generated_code_dict=load_generated_code_dict()
+
+    steps_types=[]; step_type="";tree=[];tree_node={}
+    for key in generated_code_dict:
+        tree_node={}
+        step_type=generated_code_dict[key]["step_type"]    
+        tree_node["id"]= generated_code_dict[key]["step_id"]
+        tree_node["parent"]= step_type
+        tree_node["text"]= generated_code_dict[key]["step_name"]  
+        tree.append(tree_node)
+        steps_types.append(step_type)
+
+    steps_types=set(steps_types)
+    print(steps_types)
+
+    for node in steps_types:
+        tree_node={}
+        tree_node["id"]= node
+        tree_node["parent"]= "#"
+        tree_node["text"]= node.replace("_"," ").title()
+        tree.append(tree_node)
+
+    with open(filepath+'tree_view_nodes.json', 'w') as outfile:
+        json.dump(tree, outfile)
+    return
+    
 '''
 generated code dictionary
 '''
-
-
 
 """ generated_code_dict={
     "drop_cols":

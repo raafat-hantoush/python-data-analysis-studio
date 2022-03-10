@@ -37,7 +37,7 @@ def execute_code(code):
             try:
                 rsp = json.loads(ws.recv())
                 msg_type = rsp['msg_type']
-                print("message type "+msg_type)
+                #print("message type "+msg_type)
                 if msg_type in ('error', 'execute_reply'):
                     break
                 if msg_type == 'stream':
@@ -57,12 +57,13 @@ def execute_code(code):
                 print('Error decoding JSON: {}'.format(e))
                 raise
         if msg_type == 'execute_reply':
-            print(rsp['content'])
+            #print(rsp['content'])
+            pass
         if msg_type == 'error':
-            print("erros is raised ")
+            print("erros are raised ")
             raise Exception('Failed to execute: {}'.format(rsp["content"]["evalue"]))
 
-    ws.close()
-    return code_output
+    #ws.close()
+    return True,code_output
 ##y=execute_code(["df=pd.read_csv(\"work_file.csv\")","print df"])
 #print(y)

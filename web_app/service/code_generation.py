@@ -22,29 +22,29 @@ def parse_cells_sources(cells_sources):
         if len(cell)>4 :
             if len(cell[0])>9:
                 ## handle step_id
-                print(cell[0][9:-1])
+                #print(cell[0][9:-1])
                 step_id=cell[0][9:-1]
             else: step_id=""
                 
             if len(cell[1])>11:
-                print(cell[1][11:-1])
+                #print(cell[1][11:-1])
                 step_name=cell[1][11:-1]
             else: step_name=""
                 
             #handle step_type
             if len(cell[2])>11:
-                print(cell[2][11:-1])
+                #print(cell[2][11:-1])
                 step_type=cell[2][11:-1]
             else: step_type=""
 
             #handle step_desc
             if len(cell[3])>11:
-                print(cell[3][11:-1])
+                #print(cell[3][11:-1])
                 step_desc=cell[3][11:-1]
             else: step_desc=""
 
             # handle step_code
-            print("".join(cell[4:]))
+            #print("".join(cell[4:]))
             step_code="".join(cell[4:])
         else:
             step_id="";step_name="";step_type="";step_desc="";step_code=""
@@ -78,7 +78,6 @@ def generate_tree_view_json_data(filepath):
         steps_types.append(step_type)
 
     steps_types=set(steps_types)
-    print(steps_types)
 
     for node in steps_types:
         tree_node={}

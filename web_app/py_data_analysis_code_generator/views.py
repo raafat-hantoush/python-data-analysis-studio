@@ -1,8 +1,10 @@
+import json
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 import numpy as np
 import pandas as pd
 import pickle
+import jsonschema
 import time
 '''
 import modules
@@ -15,6 +17,32 @@ from service.code_generation import load_generated_code_dict
 from service.code_generation import generate_tree_view_json_data
 import service.jupyter_kernel_executor as kernel
 
+def get_data_frame():
+    df=pd.DataFrame({})
+    try:
+        frame_json=kernel.execute_code(["pd.DataFrame.to_json(df,orient='columns')"])
+        frame_json= frame_json[1][0]      
+        df=pd.read_json(frame_json[1:-1],orient='columns')
+    except Exception as e:
+        print("data frame to json exception: "+str(e))
+    return df
+                
+def load_data_frame(request):
+    print("load data frame is invoked!")
+    frame_html=""
+    df=pd.DataFrame({})
+    try:
+        frame_json=kernel.execute_code(["pd.DataFrame.to_json(df,orient='columns')"])
+        frame_json= frame_json[1][0]      
+        df=pd.read_json(frame_json[1:-1],orient='columns')
+        frame_html = pd.DataFrame.to_html(df, max_rows=20, max_cols=100, justify='justify-all',
+                                          show_dimensions=True, bold_rows=False)
+        frame_html = frame_html.replace('<table border="1" class="dataframe">', 
+                                        '<table border="1" class="table table-sm table-responsive">')
+    except Exception as e:
+                print("data frame to json exception: "+str(e))
+    return HttpResponse(json.dumps(frame_html), content_type='application/json')
+                
 # Create your views here.
 def index(request):
     
@@ -33,6 +61,7 @@ def index(request):
     '''
     generate_tree_view_json_data(path+"/py_data_analysis_code_generator/static/py_data_analysis_code_generator/")
     done=True;result=""
+    df=pd.DataFrame()
     toggle_code=None
     plot_type=""
     stat_type=""
@@ -41,7 +70,7 @@ def index(request):
     experiments=[]
     steps,steps_desc,steps_codes = [],[],[]
     new_step_generated_code,new_step_generated_desc="",""
-    name = 'blub';df=pd.DataFrame();
+    name = 'blub';
     commands=["new_experiment"]
     settings={"toggle_code":False}
     ##load experiments 
@@ -160,45 +189,49 @@ def index(request):
         '''
         run commands 
         '''
-        res = request.POST.get('start')
+        run_step = request.POST.get('run_step')
         
-        if res == 'run':
+        if run_step:
+            print("run_step is invoked!")
             """ cnt = df.shape[0]
             name = chr(np.random.randint(200))
             df[name] = np.random.randint(10, size=cnt) """
             
             try:
-                done,result=kernel.execute_code([request.POST.get("step_code")])
+                done,result=kernel.execute_code([run_step])
                 code_output_msg.extend(result)
+                print("codoutputmsg "+ str(len(code_output_msg)))
+                pickle.dump([experiments,current_experiment,commands,settings,code_output_msg], 
+                            open(path+"/web_app/"+'temp/project.pickle', 'wb'))
             except Exception as e:
                 print("run step exception:"+str(e))
                 code_output_msg.append(str(e))
-                
-        if res == 'remove':
+            
+            return HttpResponse(json.dumps("\n".join(code_output_msg[::-1])), content_type='application/json')    
+
+        """ if res == 'remove':
             try:
                 kernel.execute_code(["df.drop(df.columns[-1], axis='columns', inplace=True)"])
             except Exception as e:
                 print(str(e))
-                code_output_msg.append(str(e))
+                code_output_msg.append(str(e)) """
         
         run_all_above=request.POST.get("run_all_steps_codes")
-        
         if run_all_above:
             done=False
             print("run all above steps codes " + run_all_above)
             try:
-                done,result=kernel.execute_code([run_all_above])
+                done,result=kernel.execute_code(run_all_above.split(','))
                 code_output_msg.extend(result)
                 print("just right after execute run all above")
                 print("codoutputmsg "+ str(len(code_output_msg)))
-                #time.sleep(2)
-                #print("just right after sleep")
-                
+                pickle.dump([experiments,current_experiment,commands,settings,code_output_msg], 
+                            open(path+"/web_app/"+'temp/project.pickle', 'wb'))
             except Exception as e:
                 print("run all above exception: "+str(e))
                 code_output_msg.append(str(e))
-    
-    ##print("steps_codes here : " ,steps_codes)
+            
+            return HttpResponse(json.dumps("\n".join(code_output_msg[::-1])), content_type='application/json')    
             
     ## update the experiment steps
     exp.update_experiment_steps(experiments,current_experiment,steps,steps_desc,steps_codes)
@@ -214,13 +247,14 @@ def index(request):
     content = {}
     try:
         if done:
-            #pass
-            done,frame_json=kernel.execute_code(["pd.DataFrame.to_json(df,orient='columns')"])
-            frame_json= frame_json[0]          
-            df=pd.read_json(frame_json[1:-1],orient='columns')
+            pass
+            #done,frame_json=kernel.execute_code(["pd.DataFrame.to_json(df,orient='columns')"])
+            #frame_json= frame_json[0]          
+            #df=pd.read_json(frame_json[1:-1],orient='columns')
+            #df=pd.DataFrame({})
     except Exception as e:
                 print("data frame to json exception: "+str(e))
-                code_output_msg.append(str(e))
+                code_output_msg.extend(str(e))
                 
     #pd.DataFrame.to_html(df, max_rows=20, max_cols=100, justify='justify-all', show_dimensions=True, bold_rows=False)"])[0]
     frame_html = pd.DataFrame.to_html(df, max_rows=20, max_cols=100, justify='justify-all', show_dimensions=True, bold_rows=False)
@@ -233,16 +267,14 @@ def index(request):
          content["toggle_code"]=toggle_code
          
     if stat_type!="" and stat_type is not None :
+        df=get_data_frame()
         content["stats"]=get_stats_html(df,stat_type)
         
     if plot_type!="" and plot_type is not None:
+        df=get_data_frame()
         content["plt_encoded"]=plot_vizualisation(df,plot_type)
         
     content['commands'] = commands
-    
-    #steps=["test this"]
-    #steps_desc=["step des"]
-    #steps_codes=[""]
     
     content['steps'] = zip(steps,steps_desc,steps_codes)
     content['current_experiment'] = current_experiment
@@ -259,7 +291,7 @@ def index(request):
     '''
     #pd.to_pickle(df, path+"/web_app/"+'temp/tmp.pkl')
     print("just right before render")
-    if done:
-        return render(request, 'py_data_analysis_code_generator/index.html', context=content)
-    else:
-        pass
+    ##if done:
+    return render(request, 'py_data_analysis_code_generator/index.html', context=content)
+    ##else:
+     ##   pass

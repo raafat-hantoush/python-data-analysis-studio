@@ -13,6 +13,7 @@ headers = {'Authorization': 'Token d623ec84f49f54007bec91f0f89b7cc01a43cbec25197
 kernel_id="494b8312-41c6-4023-8d29-beb14b846c7c"
 
 def send_execute_request(code):
+    #print("kernel execute request "+ code)
     msg_type = 'execute_request';
     content = { 'code' : code, 'silent':False }
     hdr = { 'msg_id' : uuid.uuid1().hex, 
@@ -32,6 +33,7 @@ def execute_code(code):
      header=headers)
     code_output=[]
     for i, c in enumerate(code):
+        print("kernel execute request "+ c)
         ws.send(json.dumps(send_execute_request(c)))
         while True:
             try:
@@ -61,7 +63,14 @@ def execute_code(code):
             pass
         if msg_type == 'error':
             print("erros are raised ")
-            raise Exception('Failed to execute: {}'.format(rsp["content"]["evalue"]))
+            error=""
+            error='Failed to execute: {}'.format(rsp["content"]["evalue"])
+            print("length of code is"+ str(len(code)))
+            if len(code)>1:
+                code_output.append("Step: "+str(i)+" "+ error )
+            else:
+                code_output.append(error )
+            #raise Exception(error)
 
     #ws.close()
     return True,code_output

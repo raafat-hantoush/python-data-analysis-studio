@@ -11,7 +11,21 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
 <script>
-    $(document).ready(function(){
+    var editors=[]
+    function init_code_mirror_editors(){
+        editors=[];
+        var steps_codes = document.getElementsByClassName("step_code"); 
+        for (let i = 0; i < steps_codes.length; i++){
+            steps_codes[i].id="step_code_"+i;
+            
+            var editor= CodeMirror.fromTextArea(steps_codes[i], {
+                lineNumbers: true,
+                mode:  "python"
+            });
+            editors.push(editor)
+        }
+    }
+    function init_elements_attrs(){
         var steps_desc = document.getElementsByClassName("step_desc"); 
         var steps_codes = document.getElementsByClassName("step_code"); 
         var cards_divs=document.getElementsByClassName("card"); // for removing step card 
@@ -19,23 +33,16 @@
         for (let i = 0; i < steps_codes.length; i++){
             steps_desc[i].id="step_desc_"+i;
             steps_codes[i].id="step_code_"+i;
-
             cards_divs[i].id="card_"+i;
-            //console.log(steps_codes[i].id)
             if (i==steps_codes.length -1){ // text area for the last step
                 console.log("steps codes last step "+steps_desc[i].value)
-                /*if(steps_codes[i].value==""){
-                    steps_desc[i].innerHTML="{{new_step_generated_desc|default:''  }}"
-                    steps_codes[i].value="{{new_step_generated_code|default:''  }}"
-                }*/
                 steps_codes[i].focus()
             }
-            
-            CodeMirror.fromTextArea(steps_codes[i], {
-                lineNumbers: true,
-                mode:  "python"
-            });
         }
+    }
+    $(document).ready(function(){
+        init_elements_attrs();
+        init_code_mirror_editors();
     })
     </script>
     <script>
@@ -44,21 +51,46 @@
             console.log("remove element is invoked!");
             var element = document.getElementById(e.parentNode.parentNode.id);
             element.parentNode.removeChild(element);
+            // remove codemirror editor from the list 
+            editors.splice(parseInt(e.parentNode.parentNode.id),1)
+            init_elements_attrs();
           }
     </script>
     
     <script>
+        function run_func(e){
+            step_index = parseInt(e.parentNode.parentNode.id.substring(5));
+            console.log("card id is" + e.parentNode.parentNode.id);
+
+            step_code_val= editors[step_index].getValue();
+            $.ajax({
+                type: "POST",
+                headers: {'X-CSRFToken': csrftoken},
+                url: "/code-generator/",
+                data: {
+                    run_step:step_code_val
+                },
+                success: function (response) {
+                    //alert("success response for run all above code ")
+                    $('#code_error_txtarea').val(response);
+                },
+                error: function (response) {
+                    // alert the error if any error occured
+                    console.log(response["responseJSON"]["error"]);
+                },
+                dataType: "json"
+            });
+        }
         function run_all_above_func(e) {
             
             step_index = parseInt(e.parentNode.parentNode.id.substring(5));
             console.log("card id is" + e.parentNode.parentNode.id);
             console.log("run all above is invoked on the step "+ step_index);
             var steps_codes = document.getElementsByClassName("step_code"); 
-            var steps_codes_vals=""
+            var steps_codes_vals=[]
             for (let i = 0; i < step_index +1 ; i++){
-                //var editor=CodeMirror.fromTextArea(steps_codes[i])
-
-                steps_codes_vals+=steps_codes[i].value + "\n";
+                //alert(editors[i].getValue())
+                steps_codes_vals.push(editors[i].getValue());
             }
 
             $.ajax({
@@ -66,14 +98,15 @@
                 headers: {'X-CSRFToken': csrftoken},
                 url: "/code-generator/",
                 data: {
-                    run_all_steps_codes:steps_codes_vals
+                    run_all_steps_codes:steps_codes_vals.join(",")
                 },
-                success: function () {
-                    console.log("success")
-                    if (xhr.readyState === 4) {
-                        console.log(xhr.status);
-                        console.log(xhr.responseText);
-                    }
+                success: function (response) {
+                    //alert("success response for run all above code ")
+                    $('#code_error_txtarea').val(response);
+                },
+                error: function (response) {
+                    // alert the error if any error occured
+                    console.log(response["responseJSON"]["error"]);
                 },
                 dataType: "json"
             });

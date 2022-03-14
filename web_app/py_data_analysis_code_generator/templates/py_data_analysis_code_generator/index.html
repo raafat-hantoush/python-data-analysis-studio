@@ -16,6 +16,7 @@
                 <button type="button" onclick="save_experiment()" class="btn-primary btn-sm btn-success  ml-10" name="save">Save Experiment</button>
                 <span  id="save_experiment_status_lbl" value="" class="badge bg-sm bg-success ml-3"></span>
                 <button type="submit" class="btn btn-success btn-sm" name="toggle_code" value=False>Toggle code</button>
+                <button type="button" onclick="load_data_frame()" class="btn btn-success btn-sm" name="refresh_data" value=False>Refresh data</button>
             </div>
     </form>
     <div class="container-fluid">
@@ -30,7 +31,7 @@
                 {% include "py_data_analysis_code_generator/steps_list.html" %}
             </div>
             <div class="col-6">
-                <div style="height: 50vh;;overflow-y:auto;overflow-x:auto">
+                <div id="data_frame_div" style="height: 50vh;;overflow-y:auto;overflow-x:auto">
                     {{ dataframe|safe }}
                 </div>
                     <form action="" method="post">
@@ -42,20 +43,20 @@
                     <button type="submit" class="btn btn-success" name="plot_type" value="boxplot">Boxplot</button>
                     <button type="submit" class="btn btn-success" name="plot_type" value="pairplot">Pairplot</button>
                     </form>
-                    {% if stats %} 
+                    {% comment %} {% if stats %}  {% endcomment %}
                         <div style="white-space: pre-line">
                             {{ stats|safe }}
                         </div>
-                    {% endif %}
+                    {% comment %} {% endif %} {% endcomment %}
                     
                     {% if plt_encoded %} 
                         <img src="data:image/png;base64,{{plt_encoded|safe}}" alt="" , width="100%"> 
                     {% endif %}
-                    {% if code_output_msg %}
+                    {% comment %} {% if code_output_msg %} {% endcomment %}
                         <div class="mt-2">
-                            <textArea name="code_error_txtarea" spellcheck="false" rows=20 cols=100 style="background-color: #F5F5F5;color:red">{{code_output_msg}}</textArea>
+                            <textArea id="code_error_txtarea" name="code_error_txtarea" spellcheck="false" readonly cols=100 style="height:400px;background-color: #F5F5F5;color:red">{{code_output_msg}}</textArea>
                         </div>
-                        {% endif %}
+                    {% comment %} {% endif %} {% endcomment %}
             </div>
         </div>
       </div>
@@ -79,8 +80,7 @@
     <script>
         $(function () {
             var jsondata
-            $.getJSON('../static/py_data_analysis_code_generator/tree_view_items.json', function(data) {         
-                //console.log(data);
+            $.getJSON('../static/py_data_analysis_code_generator/tree_view_nodes.json', function(data) {         
                 jsondata=data;
                 createJSTree(jsondata);
                 });
@@ -192,9 +192,10 @@
             var steps_codes = document.getElementsByClassName("step_code"); 
             var updated_steps_ids = []; var updated_steps_desc=[]; var updated_steps_codes=[];
             for (let i = 0; i < steps_codes.length; i++){
+                //alert(editors[i].getValue())
                 updated_steps_ids.push(steps_ids[i].innerHTML); 
                 updated_steps_desc.push(steps_desc[i].value);
-                updated_steps_codes.push(steps_codes[i].value);  
+                updated_steps_codes.push(editors[i].getValue());  
             }
             console.log(updated_steps_ids)
             if (updated_steps_ids.length==0){  // for empty experiment
@@ -221,6 +222,28 @@
 
                 $("#save_experiment_status_lbl").html("experiment saved last time at "+ get_current_date())
         }                  
+    </script>
+    <script>
+        function load_data_frame(){
+            $.ajax({
+                type: "GET",
+                headers: {'X-CSRFToken': csrftoken},
+                url: "/code-generator/load_data_frame",
+                data: {
+                    
+                },
+                success: function (frame_html) {
+                    //alert("success response for refresh data ")
+                    $('#data_frame_div').html(frame_html);
+                },
+                error: function (response) {
+                    // alert the error if any error occured
+                    console.log(response["responseJSON"]["error"]);
+                }
+                ,
+                dataType: "json"
+            });
+        }
     </script>
 
     {% endblock content %}

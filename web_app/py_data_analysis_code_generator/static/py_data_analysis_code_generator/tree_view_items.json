@@ -37,7 +37,7 @@
     { "id": "quantile_transformer", "parent": "feature_transformation", "text": "Quantile Transformer" }, 
 
     { "id": "data_sampling", "parent": "#", "text": "Data Sampling" },
-    { "id": "sample_date", "parent": "data_sampling", "text": "take random sample" },
+    { "id": "sample_data", "parent": "data_sampling", "text": "take random sample" },
     { "id": "undersampling_by_imbalanced_learn", "parent": "data_sampling", "text": "undersampling by ImbLearn" },
     { "id": "upsampling_by_smote", "parent": "data_sampling", "text": "upsampling using SMOTE" },
 

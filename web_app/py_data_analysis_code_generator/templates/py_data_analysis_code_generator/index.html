@@ -63,7 +63,7 @@
             </div>
         </div>
       </div>
-      <form id="new_step_submit_hidden" style="visibility:hidden" action="/code-generator/" method="post">
+      <form id="new_step_submit_hidden" style="visibility:hidden" action="/mlstudio/" method="post">
         {% csrf_token %}
         <input type="text" id="new_step" name="new_step" value=""><br>
         <input type="text" id="new_step_desc" name="new_step_desc" value=""><br>
@@ -77,8 +77,6 @@
     {% csrf_token %}
     <script>
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        var temp_var=15
-        selected_node=""
     </script>
     
     {% csrf_token %}
@@ -129,7 +127,6 @@
             // for double click event
             $(document).on("dblclick.jstree","#jstree", function (event) {
                 console.log(node.id)
-                console.log("temp_var value here is "+ temp_var)
                 //var tree = $("#jstree").jstree(true); 			
                 //var node = tree.get_node(event.target); 			
                 //var nodePath = tree.get_path(node).join("/");
@@ -144,7 +141,7 @@
                     //document.getElementById("new_step_submit_hidden").submit();
 
                     $('#steps_list_div').load(
-                        "/code-generator/add_new_step?new_step=" + node.id,
+                        "/mlstudio/add_new_step?new_step=" + node.id,
                         function(responseTxt, statusTxt, xhr){
                             if(statusTxt == "success")
                             console.log("jstree double click , External content loaded successfully!");
@@ -153,27 +150,6 @@
                         }
                     ); 
                     }
-                                        
-                // AJAX CODE -- user double clicked on a step to add it to the pipeline
-                /*$.ajax({
-                    type: "POST",
-                    headers: {'X-CSRFToken': csrftoken},
-                    url: "/code-generator/",
-                    data: {
-                    new_step:node.id
-                    },
-                    success: function (response) {
-                        alert("success response for new_step double click ");
-                       // steps_list_page
-                      
-                    },
-                    error: function (response) {
-                        // alert the error if any error occured
-                        console.log(response["responseJSON"]["error"]);
-                    }
-                    ,
-                    dataType: "json"
-                });*/
             });
 
             $('#jstree').bind("ready.jstree", function (event, data) {
@@ -187,9 +163,6 @@
                 $('#jstree').jstree('search', searchString);
             });
         });
-    </script>
-    <script>
-        var tree = $('#jstree').jstree(true); 			
     </script>
     {% comment %}     <script>
         function expandTextarea(name) {
@@ -211,6 +184,7 @@
             let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
             return time
         }
+
         function save_experiment(){
             console.log("save experiment is invoked");
 
@@ -231,7 +205,7 @@
                 $.ajax({
                     type: "POST",
                     headers: {'X-CSRFToken': csrftoken},
-                    url: "/code-generator/",
+                    url: "/mlstudio/",
                     data: {
                         steps:updated_steps_ids.join(","),
                         steps_desc:updated_steps_desc.join("%%%"),
@@ -243,21 +217,20 @@
                             console.log(xhr.status);
                             console.log(xhr.responseText);
                         }
-                    },
-                    dataType: "json"
+                    },dataType: "json"
                 });
 
                 $("#save_experiment_status_lbl").html("experiment saved last time at "+ get_current_date())
         }                  
     </script>
+
     <script>
         function load_data_frame(){
             $.ajax({
                 type: "GET",
                 headers: {'X-CSRFToken': csrftoken},
-                url: "/code-generator/load_data_frame",
+                url: "/mlstudio/load_data_frame",
                 data: {
-                    
                 },
                 success: function (frame_html) {
                     //alert("success response for refresh data ")
@@ -266,9 +239,7 @@
                 error: function (response) {
                     // alert the error if any error occured
                     console.log(response["responseJSON"]["error"]);
-                }
-                ,
-                dataType: "json"
+                },dataType: "json"
             });
         }
 
@@ -278,7 +249,7 @@
             $.ajax({
                 type: "POST",
                 headers: {'X-CSRFToken': csrftoken},
-                url: "/code-generator/",
+                url: "/mlstudio/",
                 data: {
                     stat_type:stat_type
                 },
@@ -289,12 +260,9 @@
                 error: function (response) {
                     // alert the error if any error occured
                     console.log(response["responseJSON"]["error"]);
-                }
-                ,
-                dataType: "json"
+                },dataType: "json"
             });
         }
-
 
         function plot_visualization(plot_type){
             console.log("plot_visualization is involed!")
@@ -302,7 +270,7 @@
             $.ajax({
                 type: "POST",
                 headers: {'X-CSRFToken': csrftoken},
-                url: "/code-generator/",
+                url: "/mlstudio/",
                 data: {
                     plot_type:plot_type
                 },
@@ -314,9 +282,7 @@
                 error: function (response) {
                     // alert the error if any error occured
                     console.log(response["responseJSON"]["error"]);
-                }
-                ,
-                dataType: "json"
+                },dataType: "json"
             });
         }
     </script>

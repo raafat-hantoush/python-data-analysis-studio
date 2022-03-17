@@ -24,12 +24,16 @@
             editors.push(editor)
         }
     }
+
     function init_elements_attrs(){
+        var steps_indices = document.getElementsByClassName("step_index"); 
         var steps_desc = document.getElementsByClassName("step_desc"); 
         var steps_codes = document.getElementsByClassName("step_code"); 
         var cards_divs=document.getElementsByClassName("card"); // for removing step card 
 
         for (let i = 0; i < steps_codes.length; i++){
+            console.log(steps_indices[i].innerHTML);
+            steps_indices[i].innerHTML=i+".";
             steps_desc[i].id="step_desc_"+i;
             steps_codes[i].id="step_code_"+i;
             cards_divs[i].id="card_"+i;
@@ -44,6 +48,7 @@
         init_code_mirror_editors();
     })
     </script>
+
     <script>
         function remove_element_func(e) {
             console.log(e.parentNode.parentNode.id);
@@ -61,13 +66,9 @@
             var step_code_containers = document.getElementsByClassName("step_code_container"); 
 
             $( ".step_code_container" ).each(function( index ) {
-                if($(this).is(":visible")){
-                    $( this ).hide()
-                }
-                else{
-                    $( this ).show()
-                }
-                }); 
+                if($(this).is(":visible")){$( this ).hide()}
+                else{ $( this ).show()}
+            }); 
         }
     </script>
     
@@ -80,7 +81,7 @@
             $.ajax({
                 type: "POST",
                 headers: {'X-CSRFToken': csrftoken},
-                url: "/code-generator/",
+                url: "/mlstudio/",
                 data: {
                     run_step:step_code_val
                 },
@@ -96,10 +97,9 @@
             });
         }
         function run_all_above_func(e) {
-            
             step_index = parseInt(e.parentNode.parentNode.id.substring(5));
-            console.log("card id is" + e.parentNode.parentNode.id);
-            console.log("run all above is invoked on the step "+ step_index);
+            //console.log("card id is" + e.parentNode.parentNode.id);
+            //console.log("run all above is invoked on the step "+ step_index);
             var steps_codes = document.getElementsByClassName("step_code"); 
             var steps_codes_vals=[]
             for (let i = 0; i < step_index +1 ; i++){
@@ -110,7 +110,7 @@
             $.ajax({
                 type: "POST",
                 headers: {'X-CSRFToken': csrftoken},
-                url: "/code-generator/",
+                url: "/mlstudio/",
                 data: {
                     run_all_steps_codes:steps_codes_vals.join(",")
                 },

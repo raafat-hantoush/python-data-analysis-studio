@@ -17,6 +17,6 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    path('code-generator/', include('py_data_analysis_code_generator.urls')),
+    path('mlstudio/', include('py_data_analysis_code_generator.urls')),
     path('admin/', admin.site.urls),
 ]

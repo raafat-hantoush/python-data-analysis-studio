@@ -1,15 +1,12 @@
-import json
-import os
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
-import numpy as np
-import pandas as pd
-import pickle
-import jsonschema
-import time
 '''
 import modules
 '''
+import json; import os
+from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseRedirect
+import numpy as np; import pandas as pd
+import pickle
+
 from  service.eda_plotting import plot_vizualisation
 import service.experiments_controller as exp
 from  service.experiments_controller import Experiment
@@ -18,6 +15,9 @@ from service.code_generation import load_generated_code_dict
 from service.code_generation import generate_tree_view_json_data
 import service.jupyter_kernel_executor as kernel
 
+'''
+helper function to get the data frame via jupyter kernel request
+'''
 def get_data_frame():
     df=pd.DataFrame({})
     try:
@@ -27,7 +27,10 @@ def get_data_frame():
     except Exception as e:
         print("data frame to json exception: "+str(e))
     return df
-                
+
+'''
+loading the data frame via ajax call when refressh data button is clicked
+''' 
 def load_data_frame(request):
     print("load data frame is invoked!")
     frame_html=""
@@ -43,10 +46,11 @@ def load_data_frame(request):
     except Exception as e:
                 print("data frame to json exception: "+str(e))
     return HttpResponse(json.dumps(frame_html), content_type='application/json')
-      
-def add_new_step(request):
-    generated_code_dict=load_generated_code_dict()
 
+'''
+adding new step to the experiment via ajax call on jstree double click
+'''
+def add_new_step(request):
     try:
         current_experiment=""
         experiments=[]
@@ -56,30 +60,21 @@ def add_new_step(request):
         path = os.getcwd()
         project_file=open(path+"/web_app/"+'temp/project.pickle', 'rb')
         print("loading the pickle file")
-        if project_file: experiments,current_experiment,commands,settings,code_output_msg= pickle.load(project_file)  
+        if project_file: experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict= pickle.load(project_file)  
         if experiments:  
             steps,steps_desc,steps_codes=exp.get_experiment_info(experiments,current_experiment)
             print("steps_codes are: " ,steps_codes)
         if not commands: commands=["new_experiment"]
     except FileNotFoundError: print("project file not found")  
      
-    print("THIS IS ME")
     new_step = request.GET['new_step']
     if new_step:
         print("step_selected is: "+ new_step)
-
         steps.append(new_step)
-            
-        """ res = cmd_handler.input_command(new_step, {'filepath':path+"/web_app/"+'temp/work_file.csv'})
-            if res:
-                if 'dataframe' in res:
-                    df = res['dataframe'] """
         
         if(new_step in generated_code_dict):
             new_step_generated_desc=generated_code_dict[new_step]["step_desc"]
             new_step_generated_code=generated_code_dict[new_step]["step_code"]
-            #print(generated_code_dict[new_step]["code"])
-            #print(generated_code_dict[new_step]["desc"])
             steps_desc.append(new_step_generated_desc)
             steps_codes.append(new_step_generated_code)
         else:
@@ -92,25 +87,40 @@ def add_new_step(request):
         steps_out= zip(steps,steps_desc,steps_codes)
 
         print("saving to pickle file")
-        pickle.dump([experiments,current_experiment,commands,settings,code_output_msg], open(path+"/web_app/"+'temp/project.pickle', 'wb'))
+        pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict], open(path+"/web_app/"+'temp/project.pickle', 'wb'))
             
         return render(request, 'py_data_analysis_code_generator/steps_list.html', {'steps':steps_out})
 
-# Create your views here.
-def index(request):
+'''
+reload the source code template from the settings menu
+'''
+def reload_source_code_jstree_nodes_template(request):
+    print("reload_source_code_jstree_nodes_template is inoked!")
+    experiments=[];current_experiment="";commands=[];settings={};code_output_msg="";generated_code_dict={}
+    try:
+        path = os.getcwd()
+        project_file=open(path+"/web_app/"+'temp/project.pickle', 'rb')
+        print("loading the pickle file")
+        if project_file: experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict= pickle.load(project_file)
+    except FileNotFoundError: print("project file not found")   
     
-    '''
-    read dataframe from temp dictionary
-    '''
-    # get current directory
-    path = os.getcwd()
-    #print("Current Directory", path)
-    ##df = pd.read_pickle(path+"/web_app/"+'temp/tmp.pkl')
     generated_code_dict=load_generated_code_dict()
+    ## saving the updated dict to the project file
+    print("updating the pickle file with new generated_code_dict")
+    pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict], open(path+"/web_app/"+'temp/project.pickle', 'wb'))
+    
     '''
     generate the js tree nodes from the notebook source code template
     '''
     generate_tree_view_json_data(path+"/py_data_analysis_code_generator/static/py_data_analysis_code_generator/")
+    
+    return HttpResponseRedirect("/mlstudio")
+
+# Default View
+def index(request):
+    # get current directory
+    path = os.getcwd()
+    #print("Current Directory", path)   
     done=True;result=""
     df=pd.DataFrame()
     toggle_code=None
@@ -120,26 +130,32 @@ def index(request):
     code_output_msg=[]
     experiments=[]
     steps,steps_desc,steps_codes = [],[],[]
-    steps_out=""
     new_step_generated_code,new_step_generated_desc="",""
-    name = 'blub';
+    generated_code_dict={}
     commands=["new_experiment"]
     settings={"toggle_code":False}
-    ##load experiments 
-    try:
+    
+    try: #load experiments 
         project_file=open(path+"/web_app/"+'temp/project.pickle', 'rb')
-        print("loading the pickle file")
-        if project_file: experiments,current_experiment,commands,settings,code_output_msg= pickle.load(project_file)  
+        print("loading the project pickle file")
+        if project_file: experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict= pickle.load(project_file)  
         if experiments:  
             steps,steps_desc,steps_codes=exp.get_experiment_info(experiments,current_experiment)
             print("steps_codes are: " ,steps_codes)
         if not commands: commands=["new_experiment"]
         if not code_output_msg: code_output_msg=[]
         if not settings: settings={"toggle_code":False}
+        if not generated_code_dict: 
+            generated_code_dict=load_generated_code_dict()
+            '''
+            generate the js tree nodes from the notebook source code template
+            '''
+            generate_tree_view_json_data(path+"/py_data_analysis_code_generator/static/py_data_analysis_code_generator/")
+    
     except FileNotFoundError: print("project file not found")    
 
     '''
-    manipulate dataframe
+    handling post requests
     '''
     if request.method == 'POST':
             
@@ -149,19 +165,19 @@ def index(request):
             experiments= exp.delete_experiment(experiments,current_experiment)
             if current_experiment in commands:
                 commands.remove(current_experiment) ## delete the associated command.
-            #print("experiments list after delete")
-            #print(experiments)
+    
             ## change the current experiment to the first experiement in the list after deleting the current one.
             if experiments:
-                pickle.dump([experiments,experiments[0].id,commands,settings,code_output_msg], open(path+"/web_app/"+'temp/project.pickle', 'wb'))
+                pickle.dump([experiments,experiments[0].id,commands,settings,code_output_msg,generated_code_dict], open(path+"/web_app/"+'temp/project.pickle', 'wb'))
             else:
-                pickle.dump([[],"",commands,settings,code_output_msg], open(path+"/web_app/"+'temp/project.pickle', 'wb'))    
+                pickle.dump([[],"",commands,settings,code_output_msg,generated_code_dict], open(path+"/web_app/"+'temp/project.pickle', 'wb'))    
             return HttpResponseRedirect(request.path_info)
          
         '''
         getting plot type
         '''
         plot_type=request.POST.get('plot_type')
+        
         '''
         getting stats type
         '''
@@ -171,12 +187,12 @@ def index(request):
         '''
         toggling code
         '''
-        toggle_code=request.POST.get('toggle_code')
+        """ toggle_code=request.POST.get('toggle_code')
         if toggle_code:
             old_val=settings.get("toggle_code")
             ##print("old val is "+ str(old_val))
             settings["toggle_code"]=not old_val
-            toggle_code=not old_val
+            toggle_code=not old_val """
         
         '''
         experiments commands
@@ -192,7 +208,7 @@ def index(request):
                 commands.append(experiment_id)
                 experiment=exp.Experiment(experiment_id)
                 experiments.append(experiment)
-                pickle.dump([experiments,current_experiment,commands,settings,code_output_msg],open(path+"/web_app/"+'temp/project.pickle', 'wb'))
+                pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict],open(path+"/web_app/"+'temp/project.pickle', 'wb'))
             
             elif(command_selected.startswith("experiment_")):
                 current_experiment=command_selected
@@ -217,41 +233,9 @@ def index(request):
         experiment step
         '''
         new_step = request.POST.get('new_step')
-        if new_step:
+        """ if new_step:
             print("step_selected is: "+ new_step)
-
-            steps.append(new_step)
-            
-            """ res = cmd_handler.input_command(new_step, {'filepath':path+"/web_app/"+'temp/work_file.csv'})
-            if res:
-                if 'dataframe' in res:
-                    df = res['dataframe'] """
-        
-            if(new_step in generated_code_dict):
-                new_step_generated_desc=generated_code_dict[new_step]["step_desc"]
-                new_step_generated_code=generated_code_dict[new_step]["step_code"]
-                #print(generated_code_dict[new_step]["code"])
-                #print(generated_code_dict[new_step]["desc"])
-                steps_desc.append(new_step_generated_desc)
-                steps_codes.append(new_step_generated_code)
-            else:
-                steps_desc.append("")
-                steps_codes.append("")
-            
-            ## update the experiment steps
-            exp.update_experiment_steps(experiments,current_experiment,steps,steps_desc,steps_codes)
-            
-            steps_out= zip(steps,steps_desc,steps_codes)
-
-            print("saving to pickle file")
-            pickle.dump([experiments,current_experiment,commands,settings,code_output_msg], open(path+"/web_app/"+'temp/project.pickle', 'wb'))
-            
-            return render(request, 'py_data_analysis_code_generator/steps_list.html', {'steps':steps_out})
-            """ return HttpResponse(json.dumps(
-                                steps_out)
-                                , content_type='application/json')    
- """
-
+        """
             
         '''
         run commands 
@@ -260,28 +244,17 @@ def index(request):
         
         if run_step:
             print("run_step is invoked!")
-            """ cnt = df.shape[0]
-            name = chr(np.random.randint(200))
-            df[name] = np.random.randint(10, size=cnt) """
-            
             try:
                 done,result=kernel.execute_code([run_step])
                 code_output_msg.extend(result)
                 print("codoutputmsg "+ str(len(code_output_msg)))
-                pickle.dump([experiments,current_experiment,commands,settings,code_output_msg], 
+                pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict], 
                             open(path+"/web_app/"+'temp/project.pickle', 'wb'))
             except Exception as e:
                 print("run step exception:"+str(e))
                 code_output_msg.append(str(e))
             
             return HttpResponse(json.dumps("\n".join(code_output_msg[::-1])), content_type='application/json')    
-
-        """ if res == 'remove':
-            try:
-                kernel.execute_code(["df.drop(df.columns[-1], axis='columns', inplace=True)"])
-            except Exception as e:
-                print(str(e))
-                code_output_msg.append(str(e)) """
         
         run_all_above=request.POST.get("run_all_steps_codes")
         if run_all_above:
@@ -292,7 +265,7 @@ def index(request):
                 code_output_msg.extend(result)
                 print("just right after execute run all above")
                 print("codoutputmsg "+ str(len(code_output_msg)))
-                pickle.dump([experiments,current_experiment,commands,settings,code_output_msg], 
+                pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict], 
                             open(path+"/web_app/"+'temp/project.pickle', 'wb'))
             except Exception as e:
                 print("run all above exception: "+str(e))
@@ -302,16 +275,34 @@ def index(request):
             
     ## update the experiment steps
     exp.update_experiment_steps(experiments,current_experiment,steps,steps_desc,steps_codes)
-    print('steps:',steps)
+    
+    """ print('steps:',steps)
     print('steps_desc:',steps_desc)
     print('steps_code:',steps_codes)
-    print("commands:",commands)
+    print("commands:",commands) """
     
+    ##load teh data frame
+    df=get_data_frame()
+    
+    if toggle_code is not None :
+         content["toggle_code"]=toggle_code
+         
+    if stat_type!="" and stat_type is not None :
+        df=get_data_frame()
+        return HttpResponse(json.dumps(get_stats_html(df,stat_type)), content_type='application/json')
+        #content["stats"]=get_stats_html(df,stat_type)
+        
+    if plot_type!="" and plot_type is not None:
+        df=get_data_frame();
+        plt_encoded=plot_vizualisation(df,plot_type);
+        return HttpResponse(json.dumps(plt_encoded), content_type='application/json')
+        #content["plt_encoded"]=plot_vizualisation(df,plot_type)
+
     
     '''
     convert dataframe to readable html content
     '''
-    content = {}
+    
     try:
         if done:
             pass
@@ -327,41 +318,22 @@ def index(request):
     frame_html = pd.DataFrame.to_html(df, max_rows=20, max_cols=100, justify='justify-all', show_dimensions=True, bold_rows=False)
     frame_html = frame_html.replace('<table border="1" class="dataframe">', '<table border="1" class="table table-sm table-responsive">')
     
-    #content['attributes'] = []
-    content['dataframe'] = frame_html
-    
-    if toggle_code is not None :
-         content["toggle_code"]=toggle_code
-         
-    if stat_type!="" and stat_type is not None :
-        df=get_data_frame()
-        return HttpResponse(json.dumps(get_stats_html(df,stat_type)), content_type='application/json')
-        #content["stats"]=get_stats_html(df,stat_type)
-        
-    if plot_type!="" and plot_type is not None:
-        df=get_data_frame();
-        plt_encoded=plot_vizualisation(df,plot_type);
-        return HttpResponse(json.dumps(plt_encoded), content_type='application/json')
-        #content["plt_encoded"]=plot_vizualisation(df,plot_type)
-        
+    content = {}
+    content['dataframe'] = frame_html   
     content['commands'] = commands
-    
     content['steps'] = zip(steps,steps_desc,steps_codes)
     content['current_experiment'] = current_experiment
     content["code_output_msg"]="\n".join(code_output_msg[::-1])
-    ##content["new_step_generated_code"]=new_step_generated_code
-    ##content["new_step_generated_desc"]=new_step_generated_desc
+
 
     ## save it into the project file
-    print("saving to pickle file")
-    pickle.dump([experiments,current_experiment,commands,settings,code_output_msg], open(path+"/web_app/"+'temp/project.pickle', 'wb'))
+    print("saving to the project pickle file")
+    pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict], open(path+"/web_app/"+'temp/project.pickle', 'wb'))
     
     '''
     save changed dataframe in temp dictionary
     '''
     #pd.to_pickle(df, path+"/web_app/"+'temp/tmp.pkl')
+    
     print("just right before render")
-    ##if done:
     return render(request, 'py_data_analysis_code_generator/index.html', context=content)
-    ##else:
-     ##   pass

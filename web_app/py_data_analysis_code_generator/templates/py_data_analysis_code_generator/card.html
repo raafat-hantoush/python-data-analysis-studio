@@ -8,17 +8,12 @@
         <div  class="card-body">
           <h5 class="step_id">{{ step.0 }}</h5>
           <input type="text" class="step_desc" style="width:100%; border-width:0" value="{{step.1}}"></input>
-          {% if toggle_code %}
-          <span hidden>
-            <textArea class="step_code" name="step_code" spellcheck="false" 
-            rows=1 cols=45 style="background-color: #F5F5F5;" >{{step.2}}</textArea>
-          </span>
-          {% else %}
-            <span >
+          
+            <span class="step_code_container" >
                 <textArea class="step_code" name="step_code" spellcheck="false" 
                 rows=1 cols=45 style="background-color: #F5F5F5;">{{step.2}}</textArea>
             </span>
-          {% endif %}
+       
           </span>
         </div>
         <div aria-label="Basic example" style="margin:5px">

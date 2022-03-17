@@ -3,7 +3,6 @@
 <script src="{% static 'py_data_analysis_code_generator/codemirror/lib/codemirror.js' %}"></script>
 <link rel="stylesheet" href={% static 'py_data_analysis_code_generator/codemirror/lib/codemirror.css' %}>
 <script src="{% static 'py_data_analysis_code_generator/codemirror/mode/python/python.js'%}"></script>
-
 {% for step in steps  %}
     {% include "py_data_analysis_code_generator/card.html" %}
     <p></p>
@@ -19,7 +18,7 @@
             steps_codes[i].id="step_code_"+i;
             
             var editor= CodeMirror.fromTextArea(steps_codes[i], {
-                lineNumbers: true,
+                lineNumbers: false,
                 mode:  "python"
             });
             editors.push(editor)
@@ -55,6 +54,21 @@
             editors.splice(parseInt(e.parentNode.parentNode.id),1)
             init_elements_attrs();
           }
+
+        function toggle_code(){
+            console.log("toggle code is invoked!");
+
+            var step_code_containers = document.getElementsByClassName("step_code_container"); 
+
+            $( ".step_code_container" ).each(function( index ) {
+                if($(this).is(":visible")){
+                    $( this ).hide()
+                }
+                else{
+                    $( this ).show()
+                }
+                }); 
+        }
     </script>
     
     <script>

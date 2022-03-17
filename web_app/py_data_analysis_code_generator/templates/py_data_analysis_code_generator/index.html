@@ -15,19 +15,18 @@
                 value="delete_experiment">delete this experiment</button>
                 <button type="button" onclick="save_experiment()" class="btn-primary btn-sm btn-success  ml-10" name="save">Save Experiment</button>
                 <span  id="save_experiment_status_lbl" value="" class="badge bg-sm bg-success ml-3"></span>
-                <button type="submit" class="btn btn-success btn-sm" name="toggle_code" value=False>Toggle code</button>
+                <button type="button" onclick="toggle_code()" class="btn btn-success btn-sm" name="toggle_code_btn" value=False>Toggle code</button>
                 <button type="button" onclick="load_data_frame()" class="btn btn-success btn-sm" name="refresh_data" value=False>Refresh data</button>
             </div>
     </form>
     <div class="container-fluid">
         <div class="row row-height" >
-            <!-- 3 setup a container element -->
             <div class="col-sm-auto tree_view left" >
                 <input id="search-input" class="search-input" autocomplete="off" />
                 <br />
                 <div id="jstree"> </div>
             </div>
-            <div class="col-sm-auto left">
+            <div id="steps_list_div" class="col-sm-auto left">
                 {% include "py_data_analysis_code_generator/steps_list.html" %}
             </div>
             <div class="col-6">
@@ -36,26 +35,30 @@
                 </div>
                     <form action="" method="post">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-success" name="stat_type" value="numericals">Numercials</button>
-                    <button type="submit" class="btn btn-success" name="stat_type" value="categoricals">Categoricals</button>
-                    <button type="submit" class="btn btn-success" name="plot_type" value="hist">Histogram</button>
-                    <button type="submit" class="btn btn-success" name="plot_type" value="corr_heatmap">Corr Heatmap</button>
-                    <button type="submit" class="btn btn-success" name="plot_type" value="boxplot">Boxplot</button>
-                    <button type="submit" class="btn btn-success" name="plot_type" value="pairplot">Pairplot</button>
+                    <button type="button" onclick="get_num__cat_features('numericals')" class="btn btn-success" name="stat_type" value="numericals">Numercials</button>
+                    <button type="submit" onclick="get_num__cat_features('categoricals')" class="btn btn-success" name="stat_type" value="categoricals">Categoricals</button>
+                    <button type="button" onclick="plot_visualization('hist')" class="btn btn-success" name="plot_type" value="hist">Histogram</button>
+                    <button type="button" onclick="plot_visualization('corr_heatmap')" class="btn btn-success" name="plot_type" value="corr_heatmap">Corr Heatmap</button>
+                    <button type="button" onclick="plot_visualization('boxplot')" class="btn btn-success" name="plot_type" value="boxplot">Boxplot</button>
+                    <button type="button" onclick="plot_visualization('pairplot')" class="btn btn-success" name="plot_type" value="pairplot">Pairplot</button>
                     </form>
-                    {% comment %} {% if stats %}  {% endcomment %}
-                        <div style="white-space: pre-line">
-                            {{ stats|safe }}
-                        </div>
+                    {% comment %} {% if stats %} {% endcomment %}
+                    <div>
+                        <span id="stats_div" style="white-space: pre-line">
+                            
+                        </span>
+                    </div>
                     {% comment %} {% endif %} {% endcomment %}
-                    
-                    {% if plt_encoded %} 
-                        <img src="data:image/png;base64,{{plt_encoded|safe}}" alt="" , width="100%"> 
-                    {% endif %}
+                    {% comment %} {% if plt_encoded %}  {% endcomment %}
+                    <img id="visualization_img"  alt="" , width="100%"> 
+                    {% comment %} <img id="visualization_img" src="data:image/png;base64,{{plt_encoded|safe}}" alt="" , width="100%">  {% endcomment %}
+
+                    {% comment %} {% endif %} {% endcomment %}
                     {% comment %} {% if code_output_msg %} {% endcomment %}
-                        <div class="mt-2">
-                            <textArea id="code_error_txtarea" name="code_error_txtarea" spellcheck="false" readonly cols=100 style="height:400px;background-color: #F5F5F5;color:red">{{code_output_msg}}</textArea>
-                        </div>
+                        <div class="mt-2" >
+                             <textArea id="code_error_txtarea" name="code_error_txtarea" spellcheck="false" readonly cols=100 style="height:400px;background-color: #F5F5F5;color:red">{{code_output_msg}}</textArea> 
+                             {% comment %} <p>{{code_output_msg}}</p> {% endcomment %}
+                            </div>
                     {% comment %} {% endif %} {% endcomment %}
             </div>
         </div>
@@ -69,22 +72,25 @@
 
     <!-- Jquery for Jstree -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
-    <script src="{% static 'py_data_analysis_code_generator/dist/jstree.min.js' %}"></script>
+    <script id="jstree_script" src="{% static 'py_data_analysis_code_generator/dist/jstree.min.js' %}"></script>
     {% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script> {% endcomment %}
     {% csrf_token %}
     <script>
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        var temp_var=15
+        selected_node=""
     </script>
     
     {% csrf_token %}
     <script>
-        $(function () {
-            var jsondata
+        $(document).ready(function () {
+            var jsondata;
+            var node;
             $.getJSON('../static/py_data_analysis_code_generator/tree_view_nodes.json', function(data) {         
                 jsondata=data;
                 createJSTree(jsondata);
-                });
             });
+        });
 
         function createJSTree(jsondata) {
             $('#jstree').jstree({
@@ -110,29 +116,44 @@
                     "show_only_matches": true
                 }
             });
-            // 7 bind to events triggered on the tree
+            //  bind to events triggered on the tree
             $('#jstree').on("changed.jstree", function (e, data) {
-                console.log(data.selected);
+                console.log("selected node is " + data.selected[0]);
+                node=data.node
             });
-            // 8 interact with the tree - either way is OK
-            $('#demo').on('click', function () {
-                console.log("pressed")
-                $('#jstree').jstree(true).select_node('child_node_1');
+            //  interact with the tree
+            $('#jstree').on('click', function () {
+                console.log("pressed ")
             });
+
             // for double click event
-            $('#jstree').bind("dblclick.jstree", function (event) {
-                var tree = $(this).jstree(); 			
-                var node = tree.get_node(event.target); 			
-                var nodePath = tree.get_path(node).join("/");
+            $(document).on("dblclick.jstree","#jstree", function (event) {
+                console.log(node.id)
+                console.log("temp_var value here is "+ temp_var)
+                //var tree = $("#jstree").jstree(true); 			
+                //var node = tree.get_node(event.target); 			
+                //var nodePath = tree.get_path(node).join("/");
                 if (node.parent=="#")
                     console.log("it is parent node")
-                //console.log("double clicked id"+ node.id );
-                //console.log("double clicked text "+ node.text );
-                const new_step_elem = document.getElementById("new_step");
-                new_step_elem.value=node.id
-                console.log("new step value: "+new_step_elem.value);
-                document.getElementById("new_step_submit_hidden").submit();
+                else{
+                    //console.log("double clicked id"+ node.id );
+                    //console.log("double clicked text "+ node.text );
+                    const new_step_elem = document.getElementById("new_step");
+                    //new_step_elem.value=node.id
+                    //console.log("new step value: "+new_step_elem.value);
+                    //document.getElementById("new_step_submit_hidden").submit();
 
+                    $('#steps_list_div').load(
+                        "/code-generator/add_new_step?new_step=" + node.id,
+                        function(responseTxt, statusTxt, xhr){
+                            if(statusTxt == "success")
+                            console.log("jstree double click , External content loaded successfully!");
+                            if(statusTxt == "error")
+                            alert("Error: " + xhr.status + ": " + xhr.statusText);
+                        }
+                    ); 
+                    }
+                                        
                 // AJAX CODE -- user double clicked on a step to add it to the pipeline
                 /*$.ajax({
                     type: "POST",
@@ -141,12 +162,16 @@
                     data: {
                     new_step:node.id
                     },
-                    success: function () {
-                        console.log("success")
-                    if (xhr.readyState === 4) {
-                        console.log(xhr.status);
-                        console.log(xhr.responseText);
-                    }},
+                    success: function (response) {
+                        alert("success response for new_step double click ");
+                       // steps_list_page
+                      
+                    },
+                    error: function (response) {
+                        // alert the error if any error occured
+                        console.log(response["responseJSON"]["error"]);
+                    }
+                    ,
                     dataType: "json"
                 });*/
             });
@@ -163,7 +188,9 @@
             });
         });
     </script>
-    
+    <script>
+        var tree = $('#jstree').jstree(true); 			
+    </script>
     {% comment %}     <script>
         function expandTextarea(name) {
             document.getElementsByName(name).forEach((item) => {
@@ -207,8 +234,8 @@
                     url: "/code-generator/",
                     data: {
                         steps:updated_steps_ids.join(","),
-                        steps_desc:updated_steps_desc.join(","),
-                        steps_codes:updated_steps_codes.join(',')
+                        steps_desc:updated_steps_desc.join("%%%"),
+                        steps_codes:updated_steps_codes.join('%%%')
                     },
                     success: function () {
                         console.log("success")
@@ -244,6 +271,53 @@
                 dataType: "json"
             });
         }
-    </script>
 
+        function get_num__cat_features(stat_type){
+            console.log("get_numericals_cat_features is involed!")
+            //alert(stat_type)
+            $.ajax({
+                type: "POST",
+                headers: {'X-CSRFToken': csrftoken},
+                url: "/code-generator/",
+                data: {
+                    stat_type:stat_type
+                },
+                success: function (response) {
+                    //alert("success response for num cat features ")
+                    $('#stats_div').html(response);
+                },
+                error: function (response) {
+                    // alert the error if any error occured
+                    console.log(response["responseJSON"]["error"]);
+                }
+                ,
+                dataType: "json"
+            });
+        }
+
+
+        function plot_visualization(plot_type){
+            console.log("plot_visualization is involed!")
+            //alert(stat_type)
+            $.ajax({
+                type: "POST",
+                headers: {'X-CSRFToken': csrftoken},
+                url: "/code-generator/",
+                data: {
+                    plot_type:plot_type
+                },
+                success: function (response) {
+                    //alert("success response for  plot_visualization ")
+                    let img_src="data:image/png;base64," + response
+                    $('#visualization_img').attr('src',img_src)
+                },
+                error: function (response) {
+                    // alert the error if any error occured
+                    console.log(response["responseJSON"]["error"]);
+                }
+                ,
+                dataType: "json"
+            });
+        }
+    </script>
     {% endblock content %}

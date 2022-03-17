@@ -1,4 +1,5 @@
 import json
+import os
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 import numpy as np
@@ -42,15 +43,65 @@ def load_data_frame(request):
     except Exception as e:
                 print("data frame to json exception: "+str(e))
     return HttpResponse(json.dumps(frame_html), content_type='application/json')
-                
+      
+def add_new_step(request):
+    generated_code_dict=load_generated_code_dict()
+
+    try:
+        current_experiment=""
+        experiments=[]
+        commands=[]
+        steps,steps_desc,steps_codes = [],[],[]
+        steps_out="";new_step=""
+        path = os.getcwd()
+        project_file=open(path+"/web_app/"+'temp/project.pickle', 'rb')
+        print("loading the pickle file")
+        if project_file: experiments,current_experiment,commands,settings,code_output_msg= pickle.load(project_file)  
+        if experiments:  
+            steps,steps_desc,steps_codes=exp.get_experiment_info(experiments,current_experiment)
+            print("steps_codes are: " ,steps_codes)
+        if not commands: commands=["new_experiment"]
+    except FileNotFoundError: print("project file not found")  
+     
+    print("THIS IS ME")
+    new_step = request.GET['new_step']
+    if new_step:
+        print("step_selected is: "+ new_step)
+
+        steps.append(new_step)
+            
+        """ res = cmd_handler.input_command(new_step, {'filepath':path+"/web_app/"+'temp/work_file.csv'})
+            if res:
+                if 'dataframe' in res:
+                    df = res['dataframe'] """
+        
+        if(new_step in generated_code_dict):
+            new_step_generated_desc=generated_code_dict[new_step]["step_desc"]
+            new_step_generated_code=generated_code_dict[new_step]["step_code"]
+            #print(generated_code_dict[new_step]["code"])
+            #print(generated_code_dict[new_step]["desc"])
+            steps_desc.append(new_step_generated_desc)
+            steps_codes.append(new_step_generated_code)
+        else:
+            steps_desc.append("")
+            steps_codes.append("")
+        
+        ## update the experiment steps
+        exp.update_experiment_steps(experiments,current_experiment,steps,steps_desc,steps_codes)
+        
+        steps_out= zip(steps,steps_desc,steps_codes)
+
+        print("saving to pickle file")
+        pickle.dump([experiments,current_experiment,commands,settings,code_output_msg], open(path+"/web_app/"+'temp/project.pickle', 'wb'))
+            
+        return render(request, 'py_data_analysis_code_generator/steps_list.html', {'steps':steps_out})
+
 # Create your views here.
 def index(request):
     
     '''
     read dataframe from temp dictionary
     '''
-    import os
- 
     # get current directory
     path = os.getcwd()
     #print("Current Directory", path)
@@ -63,12 +114,13 @@ def index(request):
     done=True;result=""
     df=pd.DataFrame()
     toggle_code=None
-    plot_type=""
+    plot_type=""; plt_encoded=""
     stat_type=""
     current_experiment=""
     code_output_msg=[]
     experiments=[]
     steps,steps_desc,steps_codes = [],[],[]
+    steps_out=""
     new_step_generated_code,new_step_generated_desc="",""
     name = 'blub';
     commands=["new_experiment"]
@@ -159,8 +211,8 @@ def index(request):
             else:
                 print("here new updated steps " + new_steps.split(',')[0])
                 steps=new_steps.split(',')
-                steps_desc=request.POST.get('steps_desc').split(',')
-                steps_codes=request.POST.get('steps_codes').split(',')
+                steps_desc=request.POST.get('steps_desc').split('%%%')
+                steps_codes=request.POST.get('steps_codes').split('%%%')
         '''
         experiment step
         '''
@@ -185,6 +237,21 @@ def index(request):
             else:
                 steps_desc.append("")
                 steps_codes.append("")
+            
+            ## update the experiment steps
+            exp.update_experiment_steps(experiments,current_experiment,steps,steps_desc,steps_codes)
+            
+            steps_out= zip(steps,steps_desc,steps_codes)
+
+            print("saving to pickle file")
+            pickle.dump([experiments,current_experiment,commands,settings,code_output_msg], open(path+"/web_app/"+'temp/project.pickle', 'wb'))
+            
+            return render(request, 'py_data_analysis_code_generator/steps_list.html', {'steps':steps_out})
+            """ return HttpResponse(json.dumps(
+                                steps_out)
+                                , content_type='application/json')    
+ """
+
             
         '''
         run commands 
@@ -268,11 +335,14 @@ def index(request):
          
     if stat_type!="" and stat_type is not None :
         df=get_data_frame()
-        content["stats"]=get_stats_html(df,stat_type)
+        return HttpResponse(json.dumps(get_stats_html(df,stat_type)), content_type='application/json')
+        #content["stats"]=get_stats_html(df,stat_type)
         
     if plot_type!="" and plot_type is not None:
-        df=get_data_frame()
-        content["plt_encoded"]=plot_vizualisation(df,plot_type)
+        df=get_data_frame();
+        plt_encoded=plot_vizualisation(df,plot_type);
+        return HttpResponse(json.dumps(plt_encoded), content_type='application/json')
+        #content["plt_encoded"]=plot_vizualisation(df,plot_type)
         
     content['commands'] = commands
     

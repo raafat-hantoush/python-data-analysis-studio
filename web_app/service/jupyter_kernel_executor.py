@@ -9,8 +9,8 @@ credit to https://gist.github.com/manics
 
 base = 'ws://localhost:8888'
 url = base + '/api/kernels/'
-headers = {'Authorization': 'Token d623ec84f49f54007bec91f0f89b7cc01a43cbec25197f1c'}
-kernel_id="494b8312-41c6-4023-8d29-beb14b846c7c"
+headers = {'Authorization': 'Token 8dfd5499317ec3042ebe58ea457b11ee02926fb4ea0803e8'}
+kernel_id="fc3b1f21-1d3e-4054-aa07-752b546f128c"
 
 def send_execute_request(code):
     #print("kernel execute request "+ code)
@@ -40,11 +40,12 @@ def execute_code(code):
                 rsp = json.loads(ws.recv())
                 msg_type = rsp['msg_type']
                 #print("message type "+msg_type)
-                if msg_type in ('error', 'execute_reply'):
+                if msg_type in ('error'):
                     break
                 if msg_type == 'stream':
                     print("stream content "+rsp['content']['text'])
                     code_output.append(rsp["content"]["text"])
+                    break;
                 
                 elif msg_type=="execute_result":
                     #print(rsp["content"]["data"]['text/plain'])
@@ -52,20 +53,21 @@ def execute_code(code):
                         code_output.append(rsp["content"]["data"]['text/html'])
                     else:
                         code_output.append(rsp["content"]["data"]['text/plain'])
-                elif msg_type not in ('execute_input', 'status'):
-                    pass
+                    break;
+                #elif msg_type not in ('execute_input', 'status'):
+                #    pass
                 
             except json.JSONDecodeError as e:
                 print('Error decoding JSON: {}'.format(e))
                 raise
-        if msg_type == 'execute_reply':
+        """ if msg_type == 'execute_reply':
             #print(rsp['content'])
-            pass
+            pass """
         if msg_type == 'error':
-            print("erros are raised ")
+            print("errors are raised ")
             error=""
             error='Failed to execute: {}'.format(rsp["content"]["evalue"])
-            print("length of code is"+ str(len(code)))
+            print("length of code is "+ str(len(code)))
             if len(code)>1:
                 code_output.append("Step: "+str(i)+" "+ error )
             else:
@@ -73,6 +75,6 @@ def execute_code(code):
             #raise Exception(error)
 
     #ws.close()
-    return True,code_output
-##y=execute_code(["df=pd.read_csv(\"work_file.csv\")","print df"])
+    return code_output
+#y=execute_code(["print('Hello worl')"])
 #print(y)

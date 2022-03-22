@@ -14,13 +14,13 @@ from websocket import create_connection
 # The token is written on stdout when you start the notebook
 notebook_path = '/Documents/GitHub/general/test.ipynb'
 base = 'http://localhost:8888'
-headers = {'Authorization': 'Token d623ec84f49f54007bec91f0f89b7cc01a43cbec25197f1c'}
+headers = {'Authorization': 'Token 8dfd5499317ec3042ebe58ea457b11ee02926fb4ea0803e8'}
 
 url = base + '/api/kernels'
 response = requests.post(url,headers=headers)
 print(response.content)
 #kernel = json.loads(response.text)
-kernel_id="494b8312-41c6-4023-8d29-beb14b846c7c"
+kernel_id="fc3b1f21-1d3e-4054-aa07-752b546f128c"
 # Load the notebook and get the code of each cell
 url = base + '/api/contents' + notebook_path
 response = requests.get(url,headers=headers)

@@ -112,7 +112,7 @@
                 headers: {'X-CSRFToken': csrftoken},
                 url: "/mlstudio/",
                 data: {
-                    run_all_steps_codes:steps_codes_vals.join(",")
+                    run_all_steps_codes:steps_codes_vals.join("%%%")
                 },
                 success: function (response) {
                     //alert("success response for run all above code ")

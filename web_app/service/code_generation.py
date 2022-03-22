@@ -75,9 +75,8 @@ def generate_tree_view_json_data(filepath):
         tree_node["parent"]= step_type
         tree_node["text"]= generated_code_dict[key]["step_name"]  
         tree.append(tree_node)
-        steps_types.append(step_type)
-
-    steps_types=set(steps_types)
+        if step_type not  in steps_types:
+            steps_types.append(step_type)
 
     for node in steps_types:
         tree_node={}

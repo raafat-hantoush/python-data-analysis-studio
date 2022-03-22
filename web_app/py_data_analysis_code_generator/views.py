@@ -22,7 +22,7 @@ def get_data_frame():
     df=pd.DataFrame({})
     try:
         frame_json=kernel.execute_code(["pd.DataFrame.to_json(df,orient='columns')"])
-        frame_json= frame_json[1][0]      
+        frame_json= frame_json[0]      
         df=pd.read_json(frame_json[1:-1],orient='columns')
     except Exception as e:
         print("data frame to json exception: "+str(e))
@@ -37,7 +37,7 @@ def load_data_frame(request):
     df=pd.DataFrame({})
     try:
         frame_json=kernel.execute_code(["pd.DataFrame.to_json(df,orient='columns')"])
-        frame_json= frame_json[1][0]      
+        frame_json= frame_json[0]      
         df=pd.read_json(frame_json[1:-1],orient='columns')
         frame_html = pd.DataFrame.to_html(df, max_rows=20, max_cols=100, justify='justify-all',
                                           show_dimensions=True, bold_rows=False)
@@ -121,7 +121,7 @@ def index(request):
     # get current directory
     path = os.getcwd()
     #print("Current Directory", path)   
-    done=True;result=""
+    result=""
     df=pd.DataFrame()
     toggle_code=None
     plot_type=""; plt_encoded=""
@@ -241,37 +241,38 @@ def index(request):
         run commands 
         '''
         run_step = request.POST.get('run_step')
-        
         if run_step:
             print("run_step is invoked!")
             try:
-                done,result=kernel.execute_code([run_step])
-                code_output_msg.extend(result)
+                result=kernel.execute_code([run_step])
+                code_output_msg=result
+                #code_output_msg.extend(result)
                 print("codoutputmsg "+ str(len(code_output_msg)))
                 pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict], 
                             open(path+"/web_app/"+'temp/project.pickle', 'wb'))
             except Exception as e:
                 print("run step exception:"+str(e))
-                code_output_msg.append(str(e))
+                #code_output_msg.append(str(e))
+                code_output_msg=str(e)
             
             return HttpResponse(json.dumps("\n".join(code_output_msg[::-1])), content_type='application/json')    
         
         run_all_above=request.POST.get("run_all_steps_codes")
         if run_all_above:
-            done=False
             print("run all above steps codes " + run_all_above)
             try:
-                done,result=kernel.execute_code(run_all_above.split(','))
-                code_output_msg.extend(result)
+                result=kernel.execute_code(run_all_above.split("%%%"))
+                #code_output_msg.extend(result)
+                code_output_msg=result
                 print("just right after execute run all above")
                 print("codoutputmsg "+ str(len(code_output_msg)))
                 pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict], 
                             open(path+"/web_app/"+'temp/project.pickle', 'wb'))
             except Exception as e:
                 print("run all above exception: "+str(e))
-                code_output_msg.append(str(e))
-            
-            return HttpResponse(json.dumps("\n".join(code_output_msg[::-1])), content_type='application/json')    
+                code_output_msg=str(e)
+            ##code_output_msg[::-1] for reversing the message output
+            return HttpResponse(json.dumps("\n".join(code_output_msg)), content_type='application/json')    
             
     ## update the experiment steps
     exp.update_experiment_steps(experiments,current_experiment,steps,steps_desc,steps_codes)
@@ -304,9 +305,8 @@ def index(request):
     '''
     
     try:
-        if done:
-            pass
-            #done,frame_json=kernel.execute_code(["pd.DataFrame.to_json(df,orient='columns')"])
+        pass
+            #frame_json=kernel.execute_code(["pd.DataFrame.to_json(df,orient='columns')"])
             #frame_json= frame_json[0]          
             #df=pd.read_json(frame_json[1:-1],orient='columns')
             #df=pd.DataFrame({})

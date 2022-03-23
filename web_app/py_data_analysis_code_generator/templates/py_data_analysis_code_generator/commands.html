@@ -5,7 +5,7 @@
     {% csrf_token %}
     <p>
     {% for elem in commands %}
-        <button type="submit" class="btn btn-primary btn-sm mb-1" name="command_selected" value={{ elem }}>{{ elem }}</button>
+        <button type="submit" class="btn btn-primary btn-sm mb-1" name="command_selected" value='{{ elem }}'>{{ elem }}</button>
     {% endfor %} 
     </p>
 </form>

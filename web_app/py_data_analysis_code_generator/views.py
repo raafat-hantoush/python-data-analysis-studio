@@ -132,21 +132,23 @@ def index(request):
     steps,steps_desc,steps_codes = [],[],[]
     new_step_generated_code,new_step_generated_desc="",""
     generated_code_dict={}
-    commands=["new_experiment"]
+    commands=["new experiment","copy current experiment"]
     settings={"toggle_code":False}
     
     try: #load experiments 
         project_file=open(path+"/web_app/"+'temp/project.pickle', 'rb')
         print("loading the project pickle file")
         if project_file: experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict= pickle.load(project_file)  
-        if experiments:  
+        if experiments:
             steps,steps_desc,steps_codes=exp.get_experiment_info(experiments,current_experiment)
             print("steps_codes are: " ,steps_codes)
-        if not commands: commands=["new_experiment"]
+        if not commands: commands=["new experiment"]
         if not code_output_msg: code_output_msg=[]
         if not settings: settings={"toggle_code":False}
         if not generated_code_dict: 
             generated_code_dict=load_generated_code_dict()
+        if not current_experiment: 
+            current_experiment=""
             '''
             generate the js tree nodes from the notebook source code template
             '''
@@ -199,7 +201,7 @@ def index(request):
         '''
         command_selected = request.POST.get('command_selected')
         if command_selected:
-            if(command_selected=="new_experiment"):
+            if(command_selected=="new experiment"):
                 print("new experiment was pressed")
                 experiment_id="experiment_"+str(len(experiments))
                 print("current experiment is "+ experiment_id)
@@ -210,6 +212,19 @@ def index(request):
                 experiments.append(experiment)
                 pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict],open(path+"/web_app/"+'temp/project.pickle', 'wb'))
             
+            elif(command_selected=="copy current experiment"):
+                if current_experiment:
+                    print("copy current experiment was pressed")
+                    experiment_id="experiment_"+str(len(experiments))
+                    print("current experiment is "+ experiment_id)
+                    current_experiment=experiment_id
+                    commands.append(experiment_id)
+                    experiment=exp.Experiment(experiment_id,steps=steps,
+                                              steps_codes=steps_codes,steps_desc=steps_desc)
+                    experiments.append(experiment)
+                    pickle.dump([experiments,current_experiment,commands,
+                                 settings,code_output_msg,generated_code_dict],open(path+"/web_app/"+'temp/project.pickle', 'wb'))
+                    
             elif(command_selected.startswith("experiment_")):
                 current_experiment=command_selected
                 print("specific "+ current_experiment+ " was pressed")
@@ -264,7 +279,6 @@ def index(request):
                 result=kernel.execute_code(run_all_above.split("%%%"))
                 #code_output_msg.extend(result)
                 code_output_msg=result
-                print("just right after execute run all above")
                 print("codoutputmsg "+ str(len(code_output_msg)))
                 pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict], 
                             open(path+"/web_app/"+'temp/project.pickle', 'wb'))
@@ -335,5 +349,4 @@ def index(request):
     '''
     #pd.to_pickle(df, path+"/web_app/"+'temp/tmp.pkl')
     
-    print("just right before render")
     return render(request, 'py_data_analysis_code_generator/index.html', context=content)

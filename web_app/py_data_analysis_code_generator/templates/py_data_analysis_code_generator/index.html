@@ -51,12 +51,14 @@
                     {% comment %} {% endif %} {% endcomment %}
                     {% comment %} {% if plt_encoded %}  {% endcomment %}
                     <img id="visualization_img"  alt="" , width="100%"> 
-                    {% comment %} <img id="visualization_img" src="data:image/png;base64,{{plt_encoded|safe}}" alt="" , width="100%">  {% endcomment %}
+                    {% comment %} <img id="visualization_img" src="data:image/png;base64,{{plt_encoded|safe}}" alt="" , 
+                    width="100%">  {% endcomment %}
 
                     {% comment %} {% endif %} {% endcomment %}
                     {% comment %} {% if code_output_msg %} {% endcomment %}
                         <div class="mt-2" >
-                             <textArea id="code_error_txtarea" name="code_error_txtarea" spellcheck="false" readonly cols=100 style="height:400px;background-color: #F5F5F5;">{{code_output_msg}}</textArea> 
+                             <textArea id="code_error_txtarea" name="code_error_txtarea" spellcheck="false" readonly cols=100 
+                             style="height:400px;background-color: #F5F5F5;">{{code_output_msg}}</textArea> 
                              {% comment %} <p>{{code_output_msg}}</p> {% endcomment %}
                             </div>
                     {% comment %} {% endif %} {% endcomment %}

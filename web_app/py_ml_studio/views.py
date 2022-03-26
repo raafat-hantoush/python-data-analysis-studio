@@ -58,16 +58,21 @@ def add_new_step(request):
         steps,steps_desc,steps_codes = [],[],[]
         steps_out="";new_step=""
         path = os.getcwd()
-        project_file=open(path+"/web_app/"+'temp/project.pickle', 'rb')
+        filepath=request.GET['filepath']
+        project_file=open(filepath, 'rb')
         print("loading the pickle file")
         if project_file: experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict= pickle.load(project_file)  
         if experiments:  
             steps,steps_desc,steps_codes=exp.get_experiment_info(experiments,current_experiment)
             print("steps_codes are: " ,steps_codes)
         if not commands: commands=["new_experiment"]
+        if not generated_code_dict: 
+            generated_code_dict=load_generated_code_dict()
     except FileNotFoundError: print("project file not found")  
      
     new_step = request.GET['new_step']
+    print(request.GET['filepath'])
+    
     if new_step:
         print("step_selected is: "+ new_step)
         steps.append(new_step)
@@ -87,40 +92,19 @@ def add_new_step(request):
         steps_out= zip(steps,steps_desc,steps_codes)
 
         print("saving to pickle file")
-        pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict], open(path+"/web_app/"+'temp/project.pickle', 'wb'))
+        pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict], open(filepath, 'wb'))
             
-        return render(request, 'py_data_analysis_code_generator/steps_list.html', {'steps':steps_out})
+        return render(request, 'py_ml_studio/steps_list.html', {'steps':steps_out})
 
 '''
-reload the source code template from the settings menu
+Creating new Project/ Open existing project from the  File menu
 '''
-def reload_source_code_jstree_nodes_template(request):
-    print("reload_source_code_jstree_nodes_template is inoked!")
-    experiments=[];current_experiment="";commands=[];settings={};code_output_msg="";generated_code_dict={}
-    try:
-        path = os.getcwd()
-        project_file=open(path+"/web_app/"+'temp/project.pickle', 'rb')
-        print("loading the pickle file")
-        if project_file: experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict= pickle.load(project_file)
-    except FileNotFoundError: print("project file not found")   
-    
-    generated_code_dict=load_generated_code_dict()
-    ## saving the updated dict to the project file
-    print("updating the pickle file with new generated_code_dict")
-    pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict], open(path+"/web_app/"+'temp/project.pickle', 'wb'))
-    
-    '''
-    generate the js tree nodes from the notebook source code template
-    '''
-    generate_tree_view_json_data(path+"/py_data_analysis_code_generator/static/py_data_analysis_code_generator/")
-    
-    return HttpResponseRedirect("/mlstudio")
-
-# Default View
-def index(request):
+def load_project(request,filepath):
+    print("load_project is invoked!")
+    print("file path is "+ filepath)
     # get current directory
     path = os.getcwd()
-    #print("Current Directory", path)   
+    print("Current Directory", path)   
     result=""
     df=pd.DataFrame()
     toggle_code=None
@@ -130,13 +114,13 @@ def index(request):
     code_output_msg=[]
     experiments=[]
     steps,steps_desc,steps_codes = [],[],[]
-    new_step_generated_code,new_step_generated_desc="",""
     generated_code_dict={}
     commands=["new experiment","copy current experiment"]
     settings={"toggle_code":False}
     
     try: #load experiments 
-        project_file=open(path+"/web_app/"+'temp/project.pickle', 'rb')
+        project_file=open(filepath, 'rb')
+        #print(filepath)
         print("loading the project pickle file")
         if project_file: experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict= pickle.load(project_file)  
         if experiments:
@@ -145,14 +129,15 @@ def index(request):
         if not commands: commands=["new experiment"]
         if not code_output_msg: code_output_msg=[]
         if not settings: settings={"toggle_code":False}
-        if not generated_code_dict: 
-            generated_code_dict=load_generated_code_dict()
+        #if not generated_code_dict: ##UPDATE :load the source code every time
+        generated_code_dict=load_generated_code_dict()
+        
         if not current_experiment: 
             current_experiment=""
             '''
             generate the js tree nodes from the notebook source code template
             '''
-            generate_tree_view_json_data(path+"/py_data_analysis_code_generator/static/py_data_analysis_code_generator/")
+            generate_tree_view_json_data(path+"/py_ml_studio/static/py_ml_studio/")
     
     except FileNotFoundError: print("project file not found")    
 
@@ -170,9 +155,9 @@ def index(request):
     
             ## change the current experiment to the first experiement in the list after deleting the current one.
             if experiments:
-                pickle.dump([experiments,experiments[0].id,commands,settings,code_output_msg,generated_code_dict], open(path+"/web_app/"+'temp/project.pickle', 'wb'))
+                pickle.dump([experiments,experiments[0].id,commands,settings,code_output_msg,generated_code_dict], open(filepath, 'wb'))
             else:
-                pickle.dump([[],"",commands,settings,code_output_msg,generated_code_dict], open(path+"/web_app/"+'temp/project.pickle', 'wb'))    
+                pickle.dump([[],"",commands,settings,code_output_msg,generated_code_dict], open(filepath, 'wb'))    
             return HttpResponseRedirect(request.path_info)
          
         '''
@@ -210,7 +195,7 @@ def index(request):
                 commands.append(experiment_id)
                 experiment=exp.Experiment(experiment_id)
                 experiments.append(experiment)
-                pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict],open(path+"/web_app/"+'temp/project.pickle', 'wb'))
+                pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict],open(filepath, 'wb'))
             
             elif(command_selected=="copy current experiment"):
                 if current_experiment:
@@ -223,7 +208,7 @@ def index(request):
                                               steps_codes=steps_codes,steps_desc=steps_desc)
                     experiments.append(experiment)
                     pickle.dump([experiments,current_experiment,commands,
-                                 settings,code_output_msg,generated_code_dict],open(path+"/web_app/"+'temp/project.pickle', 'wb'))
+                                 settings,code_output_msg,generated_code_dict],open(filepath, 'wb'))
                     
             elif(command_selected.startswith("experiment_")):
                 current_experiment=command_selected
@@ -264,7 +249,7 @@ def index(request):
                 #code_output_msg.extend(result)
                 print("codoutputmsg "+ str(len(code_output_msg)))
                 pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict], 
-                            open(path+"/web_app/"+'temp/project.pickle', 'wb'))
+                            open(filepath, 'wb'))
             except Exception as e:
                 print("run step exception:"+str(e))
                 #code_output_msg.append(str(e))
@@ -281,7 +266,7 @@ def index(request):
                 code_output_msg=result
                 print("codoutputmsg "+ str(len(code_output_msg)))
                 pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict], 
-                            open(path+"/web_app/"+'temp/project.pickle', 'wb'))
+                            open(filepath, 'wb'))
             except Exception as e:
                 print("run all above exception: "+str(e))
                 code_output_msg=str(e)
@@ -342,11 +327,29 @@ def index(request):
 
     ## save it into the project file
     print("saving to the project pickle file")
-    pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict], open(path+"/web_app/"+'temp/project.pickle', 'wb'))
+    pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict], open(filepath, 'wb'))
     
     '''
     save changed dataframe in temp dictionary
     '''
     #pd.to_pickle(df, path+"/web_app/"+'temp/tmp.pkl')
     
-    return render(request, 'py_data_analysis_code_generator/index.html', context=content)
+    return render(request, 'py_ml_studio/index.html', context=content)
+
+'''
+reload the source code template from the settings menu
+'''
+def reload_source_code_jstree_nodes_template(request):
+    print("reload_source_code_jstree_nodes_template is inoked!")
+    path = os.getcwd()
+
+    '''
+    generate the js tree nodes from the notebook source code template
+    '''
+    generate_tree_view_json_data(path+"/py_ml_studio/static/py_ml_studio/")
+    
+    return HttpResponseRedirect("/mlstudio")
+
+# Default View
+def index(request):
+    return render(request, 'py_ml_studio/index.html')

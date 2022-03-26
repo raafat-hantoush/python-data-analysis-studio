@@ -54,7 +54,7 @@ ROOT_URLCONF = 'web_app.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [path.join(BASE_DIR, 'py_data_analysis_code_generator', 'templates')],
+        'DIRS': [path.join(BASE_DIR, 'py_ml_studio', 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -117,7 +117,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATICFILES_DIRS = [
-    path.join(BASE_DIR, 'py_data_analysis_code_generator', 'static')
+    path.join(BASE_DIR, 'py_ml_studio', 'static')
 ]
 STATIC_URL = 'static/'
 

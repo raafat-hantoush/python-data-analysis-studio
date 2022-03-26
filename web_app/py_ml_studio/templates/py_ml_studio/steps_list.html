@@ -1,10 +1,10 @@
 {% block steps_list %}
 {% load static %}
-<script src="{% static 'py_data_analysis_code_generator/codemirror/lib/codemirror.js' %}"></script>
-<link rel="stylesheet" href={% static 'py_data_analysis_code_generator/codemirror/lib/codemirror.css' %}>
-<script src="{% static 'py_data_analysis_code_generator/codemirror/mode/python/python.js'%}"></script>
+<script src="{% static 'py_ml_studio/codemirror/lib/codemirror.js' %}"></script>
+<link rel="stylesheet" href={% static 'py_ml_studio/codemirror/lib/codemirror.css' %}>
+<script src="{% static 'py_ml_studio/codemirror/mode/python/python.js'%}"></script>
 {% for step in steps  %}
-    {% include "py_data_analysis_code_generator/card.html" %}
+    {% include "py_ml_studio/card.html" %}
     <p></p>
 {%  endfor %}
 
@@ -81,7 +81,7 @@
             $.ajax({
                 type: "POST",
                 headers: {'X-CSRFToken': csrftoken},
-                url: "/mlstudio/",
+                url: window.location.pathname,
                 data: {
                     run_step:step_code_val
                 },
@@ -110,7 +110,7 @@
             $.ajax({
                 type: "POST",
                 headers: {'X-CSRFToken': csrftoken},
-                url: "/mlstudio/",
+                url: window.location.pathname,
                 data: {
                     run_all_steps_codes:steps_codes_vals.join("%%%")
                 },

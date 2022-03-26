@@ -9,8 +9,8 @@ credit to https://gist.github.com/manics
 
 base = 'ws://localhost:8888'
 url = base + '/api/kernels/'
-headers = {'Authorization': 'Token 8dfd5499317ec3042ebe58ea457b11ee02926fb4ea0803e8'}
-kernel_id="fc3b1f21-1d3e-4054-aa07-752b546f128c"
+headers = {'Authorization': 'Token 095e68fad8b212f913343341f72682f6ad886ab74ff6806f'}
+kernel_id="0520d825-36e2-4ae9-8519-d05fbb5354b9"
 
 def send_execute_request(code):
     #print("kernel execute request "+ code)

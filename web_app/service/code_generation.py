@@ -60,7 +60,7 @@ def parse_cells_sources(cells_sources):
     return cells_code_dict
 
 def load_generated_code_dict():
-    cells_sources = read_notebook_file_cell_sources(path+"/service/code_generation_source_template.ipynb")
+    cells_sources = read_notebook_file_cell_sources(path+"/code_generation_source_template.ipynb")
     generated_code_dict=parse_cells_sources(cells_sources)
     return generated_code_dict
 

@@ -45,3 +45,8 @@
 
   .search-input{
   }
+
+  .required:after{
+    content:"*";
+    color: red;
+  }

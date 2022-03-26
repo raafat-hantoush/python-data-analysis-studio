@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="{% static 'py_ml_studio/dist/themes/default/style.min.css' %}" />
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <div class="container mt-5">
+    <div class="container">
         <div class="modal" id="myModal">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -24,7 +24,6 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" onclick="open_project()" class="btn btn-primary">Open</button>
-                        {% comment %} <button type="submit" class="btn btn-danger">Cancel</button> {% endcomment %}
                     </div>
                 </div>
             </div>
@@ -35,7 +34,7 @@
     </div>
     <form action="" method="post">
         {% csrf_token %}
-            <div class="mb-2"> Current Experiment: {{ current_experiment|safe }} 
+            <div class="m-3"> Current Experiment: {{ current_experiment|safe }} 
                 <button type="submit" class="btn btn-danger btn-sm" name="delete_experiment" 
                 value="delete_experiment">delete this experiment</button>
                 <button type="button" onclick="save_experiment()" class="btn-primary btn-sm btn-success  ml-10" name="save">Save Experiment</button>

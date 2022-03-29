@@ -1,16 +1,27 @@
 import json
 import datetime
 import uuid
+import os
 from websocket import create_connection
 
 '''
 credit to https://gist.github.com/manics
 '''
 
-base = 'ws://localhost:8888'
+path = os.getcwd()
+'''
+reading from config file 
+'''
+import configparser
+config = configparser.ConfigParser()
+config.read(path +'/config.txt')
+token=config['Jupyter']['Token']
+jupyter_port=config['Jupyter']['Localhost_Port']
+kernel_id=config['Jupyter']['Kernel_id']
+
+base = 'ws://localhost:'+jupyter_port
 url = base + '/api/kernels/'
-headers = {'Authorization': 'Token 9dfe0c7f0e56fc00e39b1149f509544ed98624c60587b283'}
-kernel_id="10d2f030-00ef-4d22-98c2-5f2e6de32740"
+headers = {'Authorization': 'Token '+token}
 
 def send_execute_request(code):
     #print("kernel execute request "+ code)

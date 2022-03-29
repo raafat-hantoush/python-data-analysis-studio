@@ -1,7 +1,8 @@
 ## Code generation
 import json
 import os
- 
+import configparser
+
 # get current directory
 path = os.getcwd()
     
@@ -60,7 +61,12 @@ def parse_cells_sources(cells_sources):
     return cells_code_dict
 
 def load_generated_code_dict():
-    cells_sources = read_notebook_file_cell_sources(path+"/code_generation_source_template.ipynb")
+    ## read the path from the config file 
+    config = configparser.ConfigParser()
+    config.read(path +'/config.txt')
+    source_code_template_path=config['DEFAULT']['Source_Code_Template_Path']
+    
+    cells_sources = read_notebook_file_cell_sources(source_code_template_path)
     generated_code_dict=parse_cells_sources(cells_sources)
     return generated_code_dict
 

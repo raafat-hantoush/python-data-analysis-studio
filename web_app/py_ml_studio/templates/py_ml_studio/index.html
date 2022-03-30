@@ -57,34 +57,34 @@
                 <div id="data_frame_div" style="height: 50vh;;overflow-y:auto;overflow-x:auto">
                     {{ dataframe|safe }}
                 </div>
-                    <form action="" method="post">
+                <form action="" method="post">
                     {% csrf_token %}
                     <button type="button" onclick="get_num__cat_features('numericals')" class="btn btn-success" name="stat_type" value="numericals">Numercials</button>
-                    <button type="submit" onclick="get_num__cat_features('categoricals')" class="btn btn-success" name="stat_type" value="categoricals">Categoricals</button>
+                    <button type="button" onclick="get_num__cat_features('categoricals')" class="btn btn-success" name="stat_type" value="categoricals">Categoricals</button>
                     <button type="button" onclick="plot_visualization('hist')" class="btn btn-success" name="plot_type" value="hist">Histogram</button>
                     <button type="button" onclick="plot_visualization('corr_heatmap')" class="btn btn-success" name="plot_type" value="corr_heatmap">Corr Heatmap</button>
                     <button type="button" onclick="plot_visualization('boxplot')" class="btn btn-success" name="plot_type" value="boxplot">Boxplot</button>
                     <button type="button" onclick="plot_visualization('pairplot')" class="btn btn-success" name="plot_type" value="pairplot">Pairplot</button>
-                    </form>
+                </form>
                     {% comment %} {% if stats %} {% endcomment %}
-                    <div>
-                        <span id="stats_div" style="white-space: pre-line">
-                            
+                <h3>Output</h3>
+                <div class="mt-1 p-2 border border-1 border-info rounded-top" style=";overflow-y:auto;overflow-x:auto">
+                        <span class="" id="output_div"  style="white-space: pre-line">
                         </span>
-                    </div>
+                        <img id="visualization_img"  alt="" , width="100%"> 
+                </div>
                     {% comment %} {% endif %} {% endcomment %}
                     {% comment %} {% if plt_encoded %}  {% endcomment %}
-                    <img id="visualization_img"  alt="" , width="100%"> 
+                    
                     {% comment %} <img id="visualization_img" src="data:image/png;base64,{{plt_encoded|safe}}" alt="" , 
                     width="100%">  {% endcomment %}
 
                     {% comment %} {% endif %} {% endcomment %}
                     {% comment %} {% if code_output_msg %} {% endcomment %}
-                        <div class="mt-2" >
+                        {% comment %} <div class="mt-2" >
                              <textArea id="code_error_txtarea" name="code_error_txtarea" spellcheck="false" readonly cols=100 
                              style="height:400px;background-color: #F5F5F5;">{{code_output_msg}}</textArea> 
-                             {% comment %} <p>{{code_output_msg}}</p> {% endcomment %}
-                            </div>
+                        </div> {% endcomment %}
                     {% comment %} {% endif %} {% endcomment %}
             </div>
         </div>
@@ -295,7 +295,9 @@
                 },
                 success: function (response) {
                     //alert("success response for num cat features ")
-                    $('#stats_div').html(response);
+                    //console.log(response)
+                    $('#output_div').html(response);
+                    $('#visualization_img').attr('src',"")
                 },
                 error: function (response) {
                     // alert the error if any error occured
@@ -317,6 +319,7 @@
                 success: function (response) {
                     //alert("success response for  plot_visualization ")
                     let img_src="data:image/png;base64," + response
+                    $('#output_div').html("")
                     $('#visualization_img').attr('src',img_src)
                 },
                 error: function (response) {

@@ -245,6 +245,7 @@ def load_project(request,filepath):
             print("run_step is invoked!")
             try:
                 result=kernel.execute_code([run_step])
+                #code_output_msg=["<h1>this is a test<h1>"]
                 code_output_msg=result
                 #code_output_msg.extend(result)
                 print("codoutputmsg "+ str(len(code_output_msg)))
@@ -255,7 +256,7 @@ def load_project(request,filepath):
                 #code_output_msg.append(str(e))
                 code_output_msg=str(e)
             
-            return HttpResponse(json.dumps("\n".join(code_output_msg[::-1])), content_type='application/json')    
+            return HttpResponse(json.dumps("\n".join(code_output_msg)), content_type='application/json')    
         
         run_all_above=request.POST.get("run_all_steps_codes")
         if run_all_above:
@@ -264,7 +265,6 @@ def load_project(request,filepath):
                 result=kernel.execute_code(run_all_above.split("%%%"))
                 #code_output_msg.extend(result)
                 code_output_msg=result
-                print("codoutputmsg "+ str(len(code_output_msg)))
                 pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict], 
                             open(filepath, 'wb'))
             except Exception as e:
@@ -288,7 +288,7 @@ def load_project(request,filepath):
          content["toggle_code"]=toggle_code
          
     if stat_type!="" and stat_type is not None :
-        df=get_data_frame()
+        #df=get_data_frame()
         return HttpResponse(json.dumps(get_stats_html(df,stat_type)), content_type='application/json')
         #content["stats"]=get_stats_html(df,stat_type)
         

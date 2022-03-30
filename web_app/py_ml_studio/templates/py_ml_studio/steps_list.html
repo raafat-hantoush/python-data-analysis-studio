@@ -21,6 +21,17 @@
                 lineNumbers: false,
                 mode:  "python"
             });
+            editor.setOption("extraKeys", {
+                'Shift-Enter': function(cm) {
+                    //editor.replaceSelection("\n" ,"end");
+                    //alert("test codemirror keymap")
+                    run_btn=document.getElementById("run_btn_"+i);
+                    if (typeof run_btn.onclick == "function") {
+                        run_btn.onclick.apply(run_btn);
+                    }
+                }
+              });
+              editor.on
             editors.push(editor)
         }
     }
@@ -30,6 +41,8 @@
         var steps_desc = document.getElementsByClassName("step_desc"); 
         var steps_codes = document.getElementsByClassName("step_code"); 
         var cards_divs=document.getElementsByClassName("card"); // for removing step card 
+        var run_btns = document.getElementsByClassName("run_btn"); 
+        var run_all_above_btns = document.getElementsByClassName("run_all_above_btn"); 
 
         for (let i = 0; i < steps_codes.length; i++){
             console.log(steps_indices[i].innerHTML);
@@ -37,6 +50,7 @@
             steps_desc[i].id="step_desc_"+i;
             steps_codes[i].id="step_code_"+i;
             cards_divs[i].id="card_"+i;
+            run_btns[i].id="run_btn_"+i;
             if (i==steps_codes.length -1){ // text area for the last step
                 console.log("steps codes last step "+steps_desc[i].value)
                 steps_codes[i].focus()
@@ -87,7 +101,8 @@
                 },
                 success: function (response) {
                     //alert("success response for run all above code ")
-                    $('#code_error_txtarea').val(response);
+                    $('#output_div').html(response);
+                    $('#visualization_img').attr('src',"")
                 },
                 error: function (response) {
                     // alert the error if any error occured
@@ -116,7 +131,9 @@
                 },
                 success: function (response) {
                     //alert("success response for run all above code ")
-                    $('#code_error_txtarea').val(response);
+                    //$('#code_error_txtarea').val(response);
+                    $('#output_div').html(response);
+                    $('#visualization_img').attr('src',"")
                 },
                 error: function (response) {
                     // alert the error if any error occured

@@ -18,10 +18,10 @@ def get_categorical_data_stats(df):
         #df.info(buf=buf)
         #s = buf.getvalue()
         #return s
-        temp=""
+        temp="<h3>Unique Values of Categorical Columns</h3>"
         for column in df.columns:
             temp+= "---------------------------------\n"
-            temp+=(df[[column]].value_counts().to_string()) + "\n"
+            temp+=(df[[column]].value_counts().nlargest(15).to_string()) + "\n"
         return temp
     else: return pd.DataFrame()
 

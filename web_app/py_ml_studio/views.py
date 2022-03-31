@@ -13,6 +13,7 @@ from  service.experiments_controller import Experiment
 from service.eda_stats import get_stats_html
 from service.code_generation import load_generated_code_dict
 from service.code_generation import generate_tree_view_json_data
+from service.code_generation import export_experiment_to_notebook
 import service.jupyter_kernel_executor as kernel
 
 '''
@@ -229,14 +230,25 @@ def load_project(request,filepath):
                 steps=new_steps.split(',')
                 steps_desc=request.POST.get('steps_desc').split('%%%')
                 steps_codes=request.POST.get('steps_codes').split('%%%')
+        
         '''
-        experiment step
+        export experiment into notebook
         '''
-        new_step = request.POST.get('new_step')
-        """ if new_step:
-            print("step_selected is: "+ new_step)
-        """
-            
+        exported_steps = request.POST.get('exported_steps')
+        if exported_steps:
+            if exported_steps=="empty":
+                print("the experiment has no steps to export!")
+            else:
+                print("here exported steps " + exported_steps.split(',')[0])
+                exported_steps=exported_steps.split(',')
+                exported_steps_desc=request.POST.get('exported_steps_desc').split('%%%')
+                exported_steps_codes=request.POST.get('exported_steps_codes').split('%%%')   
+                filepath=request.POST.get('filepath')
+                print(filepath)
+                experiment_name=request.POST.get('experiment_name')     
+                
+                export_experiment_to_notebook(exported_steps,exported_steps_desc,exported_steps_codes,
+                                              filepath,experiment_name)     
         '''
         run commands 
         '''

@@ -2,7 +2,7 @@
 import json
 import os
 import configparser
-
+import nbformat as nbf
 # get current directory
 path = os.getcwd()
     
@@ -94,7 +94,20 @@ def generate_tree_view_json_data(filepath):
     with open(filepath+'tree_view_nodes.json', 'w') as outfile:
         json.dump(tree, outfile)
     return
+
+'''
+export an experiment to a notebook file
+'''
+def export_experiment_to_notebook(steps_names,steps_desc,steps_codes,filepath,experiment_name):
+    nb = nbf.v4.new_notebook()
+    for step_name, step_desc, step_code in zip(steps_names,steps_desc,steps_codes):
+        nb['cells'].append(nbf.v4.new_markdown_cell("## "+step_name));
+        nb['cells'].append(nbf.v4.new_markdown_cell("<b>"+step_desc));
+        nb['cells'].append(nbf.v4.new_code_cell(step_code));
     
+    nbf.write(nb, filepath + "_"+experiment_name +'.ipynb')
+    print("experiment is exported successfully!")
+    return 1
 '''
 generated code dictionary
 '''

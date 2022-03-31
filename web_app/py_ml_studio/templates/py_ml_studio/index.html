@@ -34,10 +34,12 @@
     </div>
     <form action="" method="post">
         {% csrf_token %}
-            <div class="m-3"> Current Experiment: {{ current_experiment|safe }} 
+            <div class="m-3"> 
+                <span class="m-2" id="current_experiment_lbl" >Current Experiment: {{ current_experiment|safe }}</span>
                 <button type="submit" class="btn btn-danger btn-sm" name="delete_experiment" 
                 value="delete_experiment">delete this experiment</button>
                 <button type="button" onclick="save_experiment()" class="btn-primary btn-sm btn-success  ml-10" name="save">Save Experiment</button>
+                <button type="button" onclick="export_experiment_to_notebook()" class="btn-primary btn-sm btn-success  ml-10" name="save">Export Experiment</button>
                 <span  id="save_experiment_status_lbl" value="" class="badge bg-sm bg-success ml-3"></span>
                 <button type="button" onclick="toggle_code()" class="btn btn-success btn-sm" name="toggle_code_btn" value=False>Toggle code</button>
                 <button type="button" onclick="load_data_frame()" class="btn btn-success btn-sm" name="refresh_data" value=False>Refresh data</button>
@@ -225,9 +227,7 @@
             }
         }
 
-        function save_experiment(){
-            console.log("save experiment is invoked");
-
+        function get_steps_info(){
             var steps_ids = document.getElementsByClassName("step_id"); 
             var steps_desc = document.getElementsByClassName("step_desc"); 
             var steps_codes = document.getElementsByClassName("step_code"); 
@@ -242,6 +242,16 @@
             if (updated_steps_ids.length==0){  // for empty experiment
                 updated_steps_ids=["empty"];updated_steps_desc=["empty"];updated_steps_codes=["empty"];
             }
+            return [updated_steps_ids,updated_steps_desc,updated_steps_codes]
+        }
+        function save_experiment(){
+            console.log("save experiment is invoked");
+
+            let steps_info=get_steps_info();
+            const updated_steps_ids=steps_info[0];
+            const updated_steps_desc=steps_info[1];
+            const updated_steps_codes=steps_info[2];
+
                 $.ajax({
                     type: "POST",
                     headers: {'X-CSRFToken': csrftoken},
@@ -261,6 +271,39 @@
                 });
 
                 $("#save_experiment_status_lbl").html("experiment saved last time at "+ get_current_date())
+        }
+        function export_experiment_to_notebook(){
+            console.log("export experiment to notebook is invoked");
+
+            let steps_info=get_steps_info();
+            const updated_steps_ids=steps_info[0];
+            const updated_steps_desc=steps_info[1];
+            const updated_steps_codes=steps_info[2];
+
+            let experiment_name= document.getElementById("current_experiment_lbl").innerHTML.substr(20);
+            console.log(window.location.pathname.substr(19));
+
+            $.ajax({
+                type: "POST",
+                headers: {'X-CSRFToken': csrftoken},
+                url: window.location.pathname,
+                data: {
+                    exported_steps:updated_steps_ids.join(","),
+                    exported_steps_desc:updated_steps_desc.join("%%%"),
+                    exported_steps_codes:updated_steps_codes.join('%%%'),
+                    filepath:window.location.pathname.substr(19),
+                    experiment_name:experiment_name
+                },
+                success: function () {
+                    console.log("success")
+                    if (xhr.readyState === 4) {
+                        console.log(xhr.status);
+                        console.log(xhr.responseText);
+                    }
+                },dataType: "json"
+            });
+
+            $("#save_experiment_status_lbl").html("experiment exported successfully at "+ get_current_date())
         }                  
     </script>
 

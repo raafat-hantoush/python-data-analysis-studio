@@ -3,6 +3,8 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'py_ml_studio/style.css' %}">
     <link rel="stylesheet" href="{% static 'py_ml_studio/dist/themes/default/style.min.css' %}" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <div class="container">
@@ -29,34 +31,34 @@
             </div>
         </div>
     </div>
-    <div>
+{% comment %}     <div>
         {% include "py_ml_studio/commands.html" %}
-    </div>
+    </div> {% endcomment %}
     <form action="" method="post">
         {% csrf_token %}
-            <div class="m-3"> 
-                <span class="m-2" id="current_experiment_lbl" >Current Experiment: {{ current_experiment|safe }}</span>
+            <div> 
+                <span class="ms-3" id="current_experiment_lbl" >Current Experiment: {{ current_experiment|safe }}</span>
                 <button type="submit" class="btn btn-danger btn-sm" name="delete_experiment" 
                 value="delete_experiment">delete this experiment</button>
-                <button type="button" onclick="save_experiment()" class="btn-primary btn-sm btn-success  ml-10" name="save">Save Experiment</button>
-                <button type="button" onclick="export_experiment_to_notebook()" class="btn-primary btn-sm btn-success  ml-10" name="save">Export Experiment</button>
-                <span  id="save_experiment_status_lbl" value="" class="badge bg-sm bg-success ml-3"></span>
-                <button type="button" onclick="toggle_code()" class="btn btn-success btn-sm" name="toggle_code_btn" value=False>Toggle code</button>
-                <button type="button" onclick="load_data_frame()" class="btn btn-success btn-sm" name="refresh_data" value=False>Refresh data</button>
+                <button type="button" onclick="save_experiment()" class="btn btn-secondary btn-sm btn-success" name="save">Save Experiment</button>
+                <button type="button" onclick="export_experiment_to_notebook()" class="btn btn-secondary btn-sm btn-success" name="save">Export Experiment</button>
+                <span  id="save_experiment_status_lbl" value="" class="badge bg-sm bg-success me-1"></span>
+                <button type="button" onclick="toggle_code()" class="btn btn-success btn-secondary btn-sm" name="toggle_code_btn" value=False>Toggle code</button>
             </div>
     </form>
-    <div class="container-fluid">
+    <div class="container-fluid mt-2">
         <div class="row row-height" >
-            <div class="col-sm-auto tree_view left" >
+            <div class="col-2 tree_view left" >
                 <input id="search-input" class="search-input" autocomplete="off" />
                 <br />
                 <div id="jstree"> </div>
             </div>
-            <div id="steps_list_div" class="col-sm-auto left">
+            <div id="steps_list_div" class="col-4 left">
                 {% include "py_ml_studio/steps_list.html" %}
             </div>
             <div class="col-6">
-                <div id="data_frame_div" style="height: 50vh;;overflow-y:auto;overflow-x:auto">
+                <button type="button" onclick="load_data_frame()" class="btn btn-link btn-sm" name="refresh_data" value=False>Refresh data</button>
+                <div class="h-20" id="data_frame_div" style="height:40vh;overflow-y:auto;overflow-x:auto">
                     {{ dataframe|safe }}
                 </div>
                 <form action="" method="post">
@@ -70,8 +72,8 @@
                 </form>
                     {% comment %} {% if stats %} {% endcomment %}
                 <h3>Output</h3>
-                <div class="mt-1 p-2 border border-1 border-info rounded-top" style=";overflow-y:auto;overflow-x:auto">
-                        <span class="" id="output_div"  style="white-space: pre-line">
+                <div class="mt-1 p-2 border border-1 border-info rounded-top overflow-auto mh-100" style="overflow-y:auto;overflow-x:auto;">
+                        <span class="overflow-auto" id="output_div"  style="white-space: pre-line">
                         </span>
                         <img id="visualization_img"  alt="" , width="100%"> 
                 </div>
@@ -90,16 +92,7 @@
                     {% comment %} {% endif %} {% endcomment %}
             </div>
         </div>
-      </div>
-      <form id="new_step_submit_hidden" style="visibility:hidden" action="/mlstudio/" method="post">
-        {% csrf_token %}
-        <input type="text" id="new_step" name="new_step" value=""><br>
-        <input type="text" id="new_step_desc" name="new_step_desc" value=""><br>
-        <input type="text" id="new_step_code" name="new_step_code" value=""><br>
-    </form>
-
-    <!-- Jquery for Jstree -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
+    </div>
     <script id="jstree_script" src="{% static 'py_ml_studio/dist/jstree.min.js' %}"></script>
     {% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script> {% endcomment %}
     {% csrf_token %}

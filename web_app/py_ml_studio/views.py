@@ -105,6 +105,8 @@ def load_project(request,filepath):
     print("file path is "+ filepath)
     # get current directory
     path = os.getcwd()
+    #print(os.listdir("/Users"))
+    
     print("Current Directory", path)   
     result=""
     df=pd.DataFrame()

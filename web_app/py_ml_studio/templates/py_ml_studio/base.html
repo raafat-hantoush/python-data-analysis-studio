@@ -45,10 +45,10 @@
                   <li><a class="dropdown-item" href="#">Something else here</a></li> {% endcomment %}
                 </ul>
               </li>
-              <li class="nav-item">
-                <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true"></a>
-              </li>
             </ul>
+            <div class="me-10">
+              {% include "py_ml_studio/commands.html" %}
+            </div>
             {% comment %} <form class="d-flex">
               <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
               <button class="btn btn-outline-success" type="submit">Search</button>
@@ -56,6 +56,7 @@
           </div>
         </div>
       </nav>
+      
 
     {% block content%}
     {% endblock content%}

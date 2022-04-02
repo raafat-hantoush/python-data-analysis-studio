@@ -3,6 +3,7 @@ import modules
 '''
 import json; import os
 from django.shortcuts import render
+from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseRedirect
 import numpy as np; import pandas as pd
 import pickle
@@ -94,8 +95,8 @@ def add_new_step(request):
 
         print("saving to pickle file")
         pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict], open(filepath, 'wb'))
-            
-        return render(request, 'py_ml_studio/steps_list.html', {'steps':steps_out})
+        rendered=render_to_string('py_ml_studio/steps_list.html', {'steps':steps_out}) 
+        return HttpResponse(json.dumps(rendered), content_type='application/json')
 
 '''
 Creating new Project/ Open existing project from the  File menu
@@ -312,7 +313,6 @@ def load_project(request,filepath):
         return HttpResponse(json.dumps(plt_encoded), content_type='application/json')
         #content["plt_encoded"]=plot_vizualisation(df,plot_type)
 
-    
     '''
     convert dataframe to readable html content
     '''

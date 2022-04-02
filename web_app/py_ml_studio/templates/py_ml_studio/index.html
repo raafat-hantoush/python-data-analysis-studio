@@ -4,7 +4,6 @@
     <link rel="stylesheet" href="{% static 'py_ml_studio/style.css' %}">
     <link rel="stylesheet" href="{% static 'py_ml_studio/dist/themes/default/style.min.css' %}" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
-
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <div class="container">
@@ -103,7 +102,6 @@
     {% csrf_token %}
     <script>
         $(document).ready(function () {
-            console.log("")
             var jsondata;
             var node;
             $.getJSON('{% static 'py_ml_studio/tree_view_nodes.json' %}', function(data) {         
@@ -112,16 +110,16 @@
             });
         });
 
-        function createJSTree(jsondata) {
+        function init_jstree(jsondata){
             $('#jstree').jstree({
                 "types" : {
                     "default-small" : {
-                      "icon" : "glyphicon glyphicon-flash"
+                    "icon" : "glyphicon glyphicon-flash"
                     },
                     "demo" : {
-                      "icon" : "glyphicon glyphicon-ok"
+                    "icon" : "glyphicon glyphicon-ok"
                     }
-                  },
+                },
                 "core": {     
                     "themes": {
                         "name": "default-small",
@@ -136,14 +134,24 @@
                     "show_only_matches": true
                 }
             });
+        }
+
+        function createJSTree(jsondata) {
+            init_jstree(jsondata);
+            
             //  bind to events triggered on the tree
             $('#jstree').on("changed.jstree", function (e, data) {
                 console.log("selected node is " + data.selected[0]);
-                node=data.node
+                node=data.node;
+
+                if (node.parent=="#"){
+                    //$("#tree").jstree("open_node", "#"+node.id);
+                }
+
             });
             //  interact with the tree
             $('#jstree').on('click', function () {
-                console.log("pressed ")
+                console.log("pressed");
             });
 
             // for double click event
@@ -156,23 +164,43 @@
                     console.log("it is parent node")
                 else{
                     //console.log("double clicked id"+ node.id );
-                    //console.log("double clicked text "+ node.text );
                     const new_step_elem = document.getElementById("new_step");
                     //new_step_elem.value=node.id
                     //console.log("new step value: "+new_step_elem.value);
-                    //document.getElementById("new_step_submit_hidden").submit();
-                    let current_url=window.location.pathname
-                    $('#steps_list_div').load(
-                        "/mlstudio/add_new_step?new_step=" + node.id+"&filepath="+
+                    let current_url=window.location.pathname;
+                    
+                    $.ajax({
+                        type: "GET",
+                        headers: {'X-CSRFToken': csrftoken},
+                        url: "/mlstudio/add_new_step?new_step=" + node.id+"&filepath="+
                         current_url.substring(current_url.indexOf("projects/")+9,current_url.length),
-                        function(responseTxt, statusTxt, xhr){
-                            if(statusTxt == "success")
-                                console.log("jstree double click , External content loaded successfully!");
-                            //if(statusTxt == "error")
-                            //alert("Error: " + xhr.status + ": " + xhr.statusText);
-                        }
-                    ); 
-                    }
+                        data: {
+                        },
+                        success: function (response_html) {
+                            console.log("server response from jstree double click event is returned!")
+                            console.log("Running js file");
+
+                            var jsondata;                            
+                            $.getJSON('{% static 'py_ml_studio/tree_view_nodes.json' %}', function(data) {         
+                                jsondata=data;
+                                $.getScript("{% static 'py_ml_studio/dist/jstree.min.js' %}", function(){
+                                        init_jstree(jsondata);
+                                        $('#jstree').bind("ready.jstree", function (event, data) {
+                                            $(this).jstree("open_all");
+                                            if(window.searchString)
+                                                $(this).jstree('search', window.searchString);
+                                        });
+                                    });
+                            });
+                              
+                            $('#steps_list_div').html(response_html);
+                        },
+                        error: function (response) {
+                            // alert the error if any error occured
+                            console.log(response["responseJSON"]["error"]);
+                        },dataType: "json"
+                    });
+                }
             });
 
             $('#jstree').bind("ready.jstree", function (event, data) {
@@ -182,8 +210,9 @@
 
         $(document).ready(function () {
             $(".search-input").keyup(function () {
-                var searchString = $(this).val();
-                $('#jstree').jstree('search', searchString);
+                window.searchString = $(this).val();
+                console.log("keyup is invoked!");
+                    $('#jstree').jstree('search', window.searchString);
             });
         });
     </script>

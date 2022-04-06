@@ -3,11 +3,11 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'py_ml_studio/style.css' %}">
     <link rel="stylesheet" href="{% static 'py_ml_studio/dist/themes/default/style.min.css' %}" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <div class="container">
-        <div class="modal" id="myModal">
+        <div class="modal" id="open_project_modal">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -29,17 +29,35 @@
                 </div>
             </div>
         </div>
+        <!-- Modal -->
+        <div class="modal fade" id="delExperimentModal" tabindex="-1" aria-labelledby="delExperimentModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="delExperimentModalLabel">Confirm</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                Are you sure you want to delete this Experiment?!
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="experiments_commands_form" name="delete_experiment" value="delete_experiment" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+            </div>
+        </div>
     </div>
-{% comment %}     <div>
+    <div>
         {% include "py_ml_studio/commands.html" %}
-    </div> {% endcomment %}
-    <form action="" method="post">
+    </div>
+    <form id="experiments_commands_form" action="" method="post">
         {% csrf_token %}
             <div> 
                 <span class="ms-3" id="current_experiment_lbl" >Current Experiment: {{ current_experiment|safe }}</span>
-                <button type="submit" class="btn btn-danger btn-sm" name="delete_experiment" 
-                value="delete_experiment">delete this experiment</button>
-                <button type="button" onclick="save_experiment()" class="btn btn-secondary btn-sm btn-success" name="save">Save Experiment</button>
+                <button id="delete_experiment_btn" type="button"  data-bs-toggle="modal" data-bs-target="#delExperimentModal" 
+                class="btn btn-danger btn-sm">delete this experiment</button>
+                <button id="save_experiment_btn" type="button" onclick="save_experiment()" class="btn btn-secondary btn-sm btn-success" name="save">Save Experiment</button>
                 <button type="button" onclick="export_experiment_to_notebook()" class="btn btn-secondary btn-sm btn-success" name="save">Export Experiment</button>
                 <span  id="save_experiment_status_lbl" value="" class="badge bg-sm bg-success me-1"></span>
                 <button type="button" onclick="toggle_code()" class="btn btn-success btn-secondary btn-sm" name="toggle_code_btn" value=False>Toggle code</button>
@@ -194,6 +212,9 @@
                             });
                               
                             $('#steps_list_div').html(response_html);
+
+                            //  saving experiment after adding new step  
+                            save_experiment();
                         },
                         error: function (response) {
                             // alert the error if any error occured
@@ -266,6 +287,7 @@
             }
             return [updated_steps_ids,updated_steps_desc,updated_steps_codes]
         }
+
         function save_experiment(){
             console.log("save experiment is invoked");
 

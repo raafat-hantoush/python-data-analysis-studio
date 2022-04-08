@@ -276,7 +276,7 @@
             var steps_codes = document.getElementsByClassName("step_code"); 
             var updated_steps_ids = []; var updated_steps_desc=[]; var updated_steps_codes=[];
             for (let i = 0; i < steps_codes.length; i++){
-                //alert(editors[i].getValue())
+                console.log(editors[i].getValue())
                 updated_steps_ids.push(steps_ids[i].innerHTML); 
                 updated_steps_desc.push(steps_desc[i].value);
                 updated_steps_codes.push(editors[i].getValue());  

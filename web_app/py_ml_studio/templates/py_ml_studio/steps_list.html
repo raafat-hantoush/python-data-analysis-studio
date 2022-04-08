@@ -45,7 +45,7 @@
         var run_all_above_btns = document.getElementsByClassName("run_all_above_btn"); 
 
         for (let i = 0; i < steps_codes.length; i++){
-            console.log(steps_indices[i].innerHTML);
+            console.log(steps_codes[i].innerHTML);
             steps_indices[i].innerHTML=i+".";
             steps_desc[i].id="step_desc_"+i;
             steps_codes[i].id="step_code_"+i;
@@ -65,12 +65,16 @@
 
     <script>
         function remove_element_func(e) {
-            console.log(e.parentNode.parentNode.id);
+            console.log(e.parentNode.parentNode.id.substring(5));
             console.log("remove element is invoked!");
             var element = document.getElementById(e.parentNode.parentNode.id);
             element.parentNode.removeChild(element);
             // remove codemirror editor from the list 
-            editors.splice(parseInt(e.parentNode.parentNode.id),1)
+            editors.splice(parseInt(e.parentNode.parentNode.id.substring(5)),1);
+            console.log(parseInt(e.parentNode.parentNode.id.substring(5)));
+            for (let i = 0; i < editors.length; i++){
+                console.log(editors[i].getValue());
+            };
             init_elements_attrs();
           }
 

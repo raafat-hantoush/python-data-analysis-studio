@@ -1,5 +1,11 @@
 # python-data-analysis-studio
-Tool to generate code and automate data cleaning, transformation and modeling  pipelines using scikit-learn and pandas
+Data Analysis/Science Tool to generate python code and automate data cleaning, transformation and modeling pipelines using scikit-learn and pandas.
+
+
+# Contributors
+- [Raafat H](https://github.com/raafat-hantoush)
+- [Enrique H](https://github.com/NHer0)
+- [Denny M](https://github.com/Denny-Meyer)
 
 # MIT LICENSE
 

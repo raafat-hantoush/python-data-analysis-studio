@@ -3,12 +3,34 @@
 <script src="{% static 'py_ml_studio/codemirror/lib/codemirror.js' %}"></script>
 <link rel="stylesheet" href={% static 'py_ml_studio/codemirror/lib/codemirror.css' %}>
 <script src="{% static 'py_ml_studio/codemirror/mode/python/python.js'%}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
+<!-- Latest Sortable -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js" integrity="sha512-Eezs+g9Lq4TCCq0wae01s9PuNWzHYoCMkE97e2qdkYthpI0pzC3UGB03lgEHn2XM85hDOUF6qgqqszs+iXU4UA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 {% for step in steps  %}
     {% include "py_ml_studio/card.html" %}
     <p></p>
 {%  endfor %}
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
+<script>
+    // Simple list
+    Sortable.create(steps_list_div, { 
+        animation:150,
+        selectedClass:"bg-info",
+        hostClass: 'blue-background-class',
+        // when dragging start
+        onStart: function(evt){
+            toggle_code();
+        },
+        // Called when dragging element changes position
+        onUpdate: function(evt) {
+            init_elements_attrs();
+            update_code_mirror_editors_values();
+            save_experiment();
+        },
+        onEnd: function(evt) {
+            toggle_code();
+        },        
+    });
+</script>
 <script>
     var editors=[]
     function init_code_mirror_editors(){
@@ -16,7 +38,7 @@
         var steps_codes = document.getElementsByClassName("step_code"); 
         for (let i = 0; i < steps_codes.length; i++){
             steps_codes[i].id="step_code_"+i;
-            
+            //alert(steps_codes[i].innerHTML);
             var editor= CodeMirror.fromTextArea(steps_codes[i], {
                 lineNumbers: false,
                 mode:  "python"
@@ -31,8 +53,15 @@
                     }
                 }
               });
-              editor.on
             editors.push(editor)
+        }
+    }
+
+    function update_code_mirror_editors_values(){
+        var steps_codes = document.getElementsByClassName("step_code"); 
+        for (let i = 0; i < steps_codes.length; i++){
+            //steps_codes[i].id="step_code_"+i;
+            editors[i].setValue(steps_codes[i].value);
         }
     }
 
@@ -45,14 +74,14 @@
         var run_all_above_btns = document.getElementsByClassName("run_all_above_btn"); 
 
         for (let i = 0; i < steps_codes.length; i++){
-            console.log(steps_codes[i].innerHTML);
+            //console.log(steps_codes[i].innerHTML);
             steps_indices[i].innerHTML=i+".";
             steps_desc[i].id="step_desc_"+i;
             steps_codes[i].id="step_code_"+i;
             cards_divs[i].id="card_"+i;
             run_btns[i].id="run_btn_"+i;
             if (i==steps_codes.length -1){ // text area for the last step
-                console.log("steps codes last step "+steps_desc[i].value)
+                //console.log("steps codes last step "+steps_desc[i].value)
                 steps_codes[i].focus()
             }
         }
@@ -65,21 +94,19 @@
 
     <script>
         function remove_element_func(e) {
-            console.log(e.parentNode.parentNode.id.substring(5));
-            console.log("remove element is invoked!");
+            //console.log(e.parentNode.parentNode.id.substring(5));
+            //console.log("remove element is invoked!");
             var element = document.getElementById(e.parentNode.parentNode.id);
             element.parentNode.removeChild(element);
             // remove codemirror editor from the list 
             editors.splice(parseInt(e.parentNode.parentNode.id.substring(5)),1);
-            console.log(parseInt(e.parentNode.parentNode.id.substring(5)));
-            for (let i = 0; i < editors.length; i++){
-                console.log(editors[i].getValue());
-            };
+            //console.log(parseInt(e.parentNode.parentNode.id.substring(5)));
             init_elements_attrs();
+            save_experiment();
           }
 
         function toggle_code(){
-            console.log("toggle code is invoked!");
+            //console.log("toggle code is invoked!");
 
             var step_code_containers = document.getElementsByClassName("step_code_container"); 
 
@@ -93,7 +120,7 @@
     <script>
         function run_func(e){
             step_index = parseInt(e.parentNode.parentNode.id.substring(5));
-            console.log("card id is" + e.parentNode.parentNode.id);
+            //console.log("card id is" + e.parentNode.parentNode.id);
 
             step_code_val= editors[step_index].getValue();
             $.ajax({

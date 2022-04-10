@@ -30,7 +30,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="modal fade" id="delExperimentModal" tabindex="-1" aria-labelledby="delExperimentModalLabel" aria-hidden="true">
             <div class="modal-dialog">
             <div class="modal-content">
@@ -52,18 +52,7 @@
     <div>
         {% include "py_ml_studio/commands.html" %}
     </div>
-    <form id="experiments_commands_form" action="" method="post">
-        {% csrf_token %}
-            <div> 
-                <span class="ms-3" id="current_experiment_lbl" >Current Experiment: {{ current_experiment|safe }}</span>
-                <button id="delete_experiment_btn" type="button"  data-bs-toggle="modal" data-bs-target="#delExperimentModal" 
-                class="btn btn-danger btn-sm">delete this experiment</button>
-                <button id="save_experiment_btn" type="button" onclick="save_experiment()" class="btn btn-secondary btn-sm btn-success" name="save">Save Experiment</button>
-                <button type="button" onclick="export_experiment_to_notebook()" class="btn btn-secondary btn-sm btn-success" name="save">Export Experiment</button>
-                <span  id="save_experiment_status_lbl" value="" class="badge bg-sm bg-success me-1"></span>
-                <button type="button" onclick="toggle_code()" class="btn btn-success btn-secondary btn-sm" name="toggle_code_btn" value=False>Toggle code</button>
-            </div>
-    </form>
+
     <div class="container-fluid mt-2">
         <div class="row row-height" >
             <div class="col-2 tree_view left" >
@@ -81,15 +70,22 @@
                 </div>
                 <form action="" method="post">
                     {% csrf_token %}
-                    <button type="button" onclick="get_num__cat_features('numericals')" class="btn btn-success" name="stat_type" value="numericals">Numercials</button>
-                    <button type="button" onclick="get_num__cat_features('categoricals')" class="btn btn-success" name="stat_type" value="categoricals">Categoricals</button>
-                    <button type="button" onclick="plot_visualization('hist')" class="btn btn-success" name="plot_type" value="hist">Histogram</button>
-                    <button type="button" onclick="plot_visualization('corr_heatmap')" class="btn btn-success" name="plot_type" value="corr_heatmap">Corr Heatmap</button>
-                    <button type="button" onclick="plot_visualization('boxplot')" class="btn btn-success" name="plot_type" value="boxplot">Boxplot</button>
-                    <button type="button" onclick="plot_visualization('pairplot')" class="btn btn-success" name="plot_type" value="pairplot">Pairplot</button>
+                    <button type="button" onclick="get_num__cat_features('numericals')" class="btn btn-primary btn-sm" name="stat_type" value="numericals">Numercials</button>
+                    <button type="button" onclick="get_num__cat_features('categoricals')" class="btn btn-primary btn-sm" name="stat_type" value="categoricals">Categoricals</button>
+                    <button type="button" onclick="plot_visualization('hist')" class="btn btn-primary btn-sm" name="plot_type" value="hist">Histogram</button>
+                    <button type="button" onclick="plot_visualization('corr_heatmap')" class="btn btn-primary btn-sm" name="plot_type" value="corr_heatmap">Corr Heatmap</button>
+                    <button type="button" onclick="plot_visualization('boxplot')" class="btn btn-primary btn-sm" name="plot_type" value="boxplot">Boxplot</button>
+                    <button type="button" onclick="plot_visualization('pairplot')" class="btn btn-primary btn-sm" name="plot_type" value="pairplot">Pairplot</button>
                 </form>
                     {% comment %} {% if stats %} {% endcomment %}
+                <span  >
+                    <span class="badge bg-dark">write python code here for quick tests... shift+ Enter to run the code..</span>
+                    <textArea id="temp_code_txt_area" placeholder="you can write some python code here to test stuff" spellcheck="false" 
+                    rows=1 cols=45 style="background-color: #F5F5F5;"></textArea>
+                </span>
+
                 <h3>Output</h3>
+
                 <div class="mt-1 p-2 border border-1 border-info rounded-top overflow-auto mh-100" style="overflow-y:auto;overflow-x:auto;">
                         <span class="overflow-auto" id="output_div"  style="white-space: pre-line">
                         </span>
@@ -416,5 +412,22 @@
                 },dataType: "json"
             });
         }
+    </script>
+    <script>
+        var temp_code_editor= CodeMirror.fromTextArea(document.getElementById("temp_code_txt_area"), {
+            lineNumbers: false,
+            mode:  "python"
+        });
+        temp_code_editor.setOption("extraKeys", {
+            'Shift-Enter': function(cm) {
+                //editor.replaceSelection("\n" ,"end");
+                //alert("test codemirror keymap")
+                /*run_btn=document.getElementById("run_btn_"+i);
+                if (typeof run_btn.onclick == "function") {
+                    run_btn.onclick.apply(run_btn);
+                }*/
+                run_code(temp_code_editor.getValue());
+            }
+          });
     </script>
     {% endblock content %}

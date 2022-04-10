@@ -50,7 +50,9 @@ def execute_code(code):
             try:
                 rsp = json.loads(ws.recv())
                 msg_type = rsp['msg_type']
-                #print("message type "+msg_type)
+                print("message type "+msg_type)
+                print(rsp['content'])
+
                 if msg_type in ('error'):
                     break
                 if msg_type == 'stream':
@@ -64,16 +66,24 @@ def execute_code(code):
                         code_output.append(rsp["content"]["data"]['text/html'])
                     else:
                         code_output.append(rsp["content"]["data"]['text/plain'])
-                    break;
-                #elif msg_type not in ('execute_input', 'status'):
-                #    pass
+                    break
+                
+                elif msg_type=="status":
+                    if ("execution_state" in rsp['content']):
+                        execution_state=rsp['content']["execution_state"]
+                        #print(execution_state)
+                              
+                elif msg_type=="execute_reply":
+                    if ('execution_count' and 'status' in rsp['content']):
+                        ## only break the loop when the execution finished and the stream returned in case there is stream
+                        if execution_state=="idle":
+                            print("no output for this specific command")
+                            break
                 
             except json.JSONDecodeError as e:
                 print('Error decoding JSON: {}'.format(e))
                 raise
-        """ if msg_type == 'execute_reply':
-            #print(rsp['content'])
-            pass """
+
         if msg_type == 'error':
             print("errors are raised ")
             error=""
@@ -84,7 +94,7 @@ def execute_code(code):
             else:
                 code_output.append(error )
             #raise Exception(error)
-
+    print (code_output)
     #ws.close()
     return code_output
 #y=execute_code(["print('Hello worl')"])

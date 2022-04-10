@@ -67,7 +67,7 @@ def add_new_step(request):
         if experiments:  
             steps,steps_desc,steps_codes=exp.get_experiment_info(experiments,current_experiment)
             print("steps_codes are: " ,steps_codes)
-        if not commands: commands=["new_experiment"]
+        if not commands: commands=[]
         if not generated_code_dict: 
             generated_code_dict=load_generated_code_dict()
     except FileNotFoundError: print("project file not found")  
@@ -119,7 +119,7 @@ def load_project(request,filepath):
     experiments=[]
     steps,steps_desc,steps_codes = [],[],[]
     generated_code_dict={}
-    commands=["new experiment","copy current experiment"]
+    commands=[]
     settings={"toggle_code":False}
     
     try: #load experiments 
@@ -130,7 +130,7 @@ def load_project(request,filepath):
         if experiments:
             steps,steps_desc,steps_codes=exp.get_experiment_info(experiments,current_experiment)
             print("steps_codes are: " ,steps_codes)
-        if not commands: commands=["new experiment"]
+        if not commands: commands=[]
         if not code_output_msg: code_output_msg=[]
         if not settings: settings={"toggle_code":False}
         #if not generated_code_dict: ##UPDATE :load the source code every time

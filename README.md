@@ -1,6 +1,27 @@
 # python-data-analysis-studio
 Data Analysis/Science Tool to generate python code and automate data cleaning, transformation and modeling pipelines using scikit-learn and pandas.
 
+# Installation
+1. clone this github repository into your local machine.
+2. setup a new conda environment with all the packages listed in the requirments.txt file using the commmand below. requirements.txt file is located inside the web_app folder.
+
+```conda create --name <env> --file requirements.txt```
+  
+# Getting started
+To start usng the web app:
+1. activate the conda environment that you just created using the command below in the terminal:
+
+```conda activate <env>``` env:the environment name that you chose.
+
+2. from the terminal,  browse to the folder web_app that contains the file manage.py and run the following command to start the web server:
+
+```python manage.py runserver```
+
+3. if the previous command run successfully, then you can head to the web browser and open the folloing url:
+
+```http://localhost:8000/mlstudio/```
+
+4. from the File Menu, choose open project and put the file path for a new project file or the file path for an existing project file. The Project file extension is ```.pickle```. 
 
 # Contributors
 - [Raafat H](https://github.com/raafat-hantoush)

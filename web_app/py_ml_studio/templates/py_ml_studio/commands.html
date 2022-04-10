@@ -1,11 +1,27 @@
 {% block command_fields %}
 
-<div class="m-1">
+<div class="ms-2">
+    <div class="d-grid gap-2 col-6 mx-auto">
     <form action="" method="post">
-    {% csrf_token %}
-    {% for elem in commands %}
-        <button type="submit" class="btn btn-link btn-sm mb-1" name="command_selected" value='{{ elem }}'>{{ elem }}</button>
-    {% endfor %} 
-</form>
+        {% csrf_token %}
+        {% for elem in commands %}
+            <button type="submit" class="badge bg-secondary mb-1" name="command_selected" value='{{ elem }}'>{{ elem }}</button>
+        {% endfor %} 
+    </form>
+    </div>
+    <form id="experiments_commands_form" action="" method="post">
+        {% csrf_token %}
+            <div> 
+                <button type="submit" class="badge bg-primary mb-1 mx-auto" name="command_selected" value='new experiment'>New Experiment</button>
+                <button type="button" onclick="toggle_code()" class="badge bg-primary" name="toggle_code_btn" value=False>Toggle code</button>
+                <span class="badge bg-info ms-3" id="current_experiment_lbl" >Current Experiment: {{ current_experiment|safe }}</span>
+                <button type="submit" class="badge bg-primary mb-1" name="command_selected" value='copy current experiment'>Copy Experiment</button>
+                <button id="delete_experiment_btn" type="button"  data-bs-toggle="modal" data-bs-target="#delExperimentModal" 
+                class="badge bg-danger">Delete Experiment</button>
+                <button id="save_experiment_btn" type="button" onclick="save_experiment()" class="badge bg-primary" name="save">Save Experiment</button>
+                <button type="button" onclick="export_experiment_to_notebook()" class="badge bg-primary" name="save">Export Experiment</button>
+                <span  id="save_experiment_status_lbl" value="" class="badge bg-sm bg-success me-1"></span>
+            </div>
+    </form>
 </div>
 {% endblock command_fields %}

@@ -52,18 +52,7 @@
     <div>
         {% include "py_ml_studio/commands.html" %}
     </div>
-    <form id="experiments_commands_form" action="" method="post">
-        {% csrf_token %}
-            <div> 
-                <span class="badge bg-primary ms-3" id="current_experiment_lbl" >Current Experiment: {{ current_experiment|safe }}</span>
-                <button id="delete_experiment_btn" type="button"  data-bs-toggle="modal" data-bs-target="#delExperimentModal" 
-                class="btn btn-danger btn-sm">delete this experiment</button>
-                <button id="save_experiment_btn" type="button" onclick="save_experiment()" class="btn  btn-sm btn-primary" name="save">Save Experiment</button>
-                <button type="button" onclick="export_experiment_to_notebook()" class="btn btn-sm btn-primary" name="save">Export Experiment</button>
-                <span  id="save_experiment_status_lbl" value="" class="badge bg-sm bg-success me-1"></span>
-                <button type="button" onclick="toggle_code()" class="btn btn-primary btn-sm" name="toggle_code_btn" value=False>Toggle code</button>
-            </div>
-    </form>
+
     <div class="container-fluid mt-2">
         <div class="row row-height" >
             <div class="col-2 tree_view left" >

@@ -78,7 +78,14 @@
                     <button type="button" onclick="plot_visualization('pairplot')" class="btn btn-primary btn-sm" name="plot_type" value="pairplot">Pairplot</button>
                 </form>
                     {% comment %} {% if stats %} {% endcomment %}
+                <span  >
+                    <span class="badge bg-dark">write python code here for quick tests... shift+ Enter to run the code..</span>
+                    <textArea id="temp_code_txt_area" placeholder="you can write some python code here to test stuff" spellcheck="false" 
+                    rows=1 cols=45 style="background-color: #F5F5F5;"></textArea>
+                </span>
+
                 <h3>Output</h3>
+
                 <div class="mt-1 p-2 border border-1 border-info rounded-top overflow-auto mh-100" style="overflow-y:auto;overflow-x:auto;">
                         <span class="overflow-auto" id="output_div"  style="white-space: pre-line">
                         </span>
@@ -405,5 +412,22 @@
                 },dataType: "json"
             });
         }
+    </script>
+    <script>
+        var temp_code_editor= CodeMirror.fromTextArea(document.getElementById("temp_code_txt_area"), {
+            lineNumbers: false,
+            mode:  "python"
+        });
+        temp_code_editor.setOption("extraKeys", {
+            'Shift-Enter': function(cm) {
+                //editor.replaceSelection("\n" ,"end");
+                //alert("test codemirror keymap")
+                /*run_btn=document.getElementById("run_btn_"+i);
+                if (typeof run_btn.onclick == "function") {
+                    run_btn.onclick.apply(run_btn);
+                }*/
+                run_code(temp_code_editor.getValue());
+            }
+          });
     </script>
     {% endblock content %}

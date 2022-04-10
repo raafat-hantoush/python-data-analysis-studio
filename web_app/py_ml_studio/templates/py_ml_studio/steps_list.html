@@ -1,6 +1,7 @@
 {% block steps_list %}
 {% load static %}
 <script src="{% static 'py_ml_studio/codemirror/lib/codemirror.js' %}"></script>
+<script src="{% static 'py_ml_studio/codemirror/lib/plugins/placeholder.js' %}"></script>
 <link rel="stylesheet" href={% static 'py_ml_studio/codemirror/lib/codemirror.css' %}>
 <script src="{% static 'py_ml_studio/codemirror/mode/python/python.js'%}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
@@ -118,17 +119,13 @@
     </script>
     
     <script>
-        function run_func(e){
-            step_index = parseInt(e.parentNode.parentNode.id.substring(5));
-            //console.log("card id is" + e.parentNode.parentNode.id);
-
-            step_code_val= editors[step_index].getValue();
+        function run_code(code){
             $.ajax({
                 type: "POST",
                 headers: {'X-CSRFToken': csrftoken},
                 url: window.location.pathname,
                 data: {
-                    run_step:step_code_val
+                    run_step:code
                 },
                 success: function (response) {
                     //alert("success response for run all above code ")
@@ -141,6 +138,13 @@
                 },
                 dataType: "json"
             });
+        }
+        function run_func(e){
+            step_index = parseInt(e.parentNode.parentNode.id.substring(5));
+            //console.log("card id is" + e.parentNode.parentNode.id);
+
+            step_code_val= editors[step_index].getValue();
+            run_code(step_code_val);
         }
         function run_all_above_func(e) {
             step_index = parseInt(e.parentNode.parentNode.id.substring(5));

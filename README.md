@@ -6,7 +6,27 @@ Data Analysis/Science Tool to generate python code and automate data cleaning, t
 2. setup a new conda environment with all the packages listed in the requirments.txt file using the command below. requirements.txt file is located inside the web_app folder.
 
 ```conda create --name <env> --file requirements.txt```
-  
+
+## Required Libraries
+- Django
+``` conda install -c anaconda django ```
+- nbformat 
+``` conda install -c conda-forge nbformat ```
+- websocket-client
+``` conda install -c conda-forge websocket-client ```
+- pandas
+```conda install pandas ```
+
+- numpy
+``` conda install numpy ```
+
+- matplotlib
+``` conda install -c conda-forge matplotlib ```
+
+- seaborn
+``` conda install -c anaconda seaborn ```
+
+
 # Getting started
 To start usng the web app:
 1. activate the conda environment that you just created using the command below in the terminal:

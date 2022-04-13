@@ -26,6 +26,10 @@ Data Analysis/Science Tool to generate python code and automate data cleaning, t
 - seaborn
 ``` conda install -c anaconda seaborn ```
 
+- pillow 
+```conda install -c anaconda pillow ```
+
+
 
 # Getting started
 To start usng the web app:

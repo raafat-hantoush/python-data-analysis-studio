@@ -53,12 +53,12 @@ def execute_code(code):
                 rsp = json.loads(ws.recv())
                 msg_type = rsp['msg_type']
                 print("message type "+msg_type)
-                print(rsp['content'])
+                #print(rsp['content'])
 
                 if msg_type in ('error'):
                     break
                 if msg_type == 'stream':
-                    print("stream content "+rsp['content']['text'])
+                    #print("stream content "+rsp['content']['text'])
                     code_output.append(rsp["content"]["text"])
                     break;
                 elif msg_type=="execute_result":
@@ -72,7 +72,7 @@ def execute_code(code):
                 elif msg_type=="status":
                     if ("execution_state" in rsp['content']):
                         execution_state=rsp['content']["execution_state"]
-                        print(execute_reply)
+                        #print(execute_reply)
                         if (execute_reply):
                             print("no output for this specific command")
                             code_output.append("command runs successfully at "+ datetime.datetime.now().strftime("%H:%M:%S")) ##%d.%m.%Y 
@@ -100,7 +100,7 @@ def execute_code(code):
             else:
                 code_output.append(error )
             #raise Exception(error)
-    print (code_output)
+    #print (code_output)
     #ws.close()
     return code_output
 #y=execute_code(["print('Hello worl')"])

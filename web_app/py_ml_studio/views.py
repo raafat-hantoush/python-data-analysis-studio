@@ -35,10 +35,15 @@ loading the data frame via ajax call when refressh data button is clicked
 ''' 
 def load_data_frame(request):
     print("load data frame is invoked!")
+    ##print(request.GET.get('data', ''))
     frame_html=""
     df=pd.DataFrame({})
+    df_name=request.GET.get('data', '')
+    if df_name in ["y","y_train","y_test"] :
+        df_name="pd.DataFrame("+df_name+")"
+        print(df_name)
     try:
-        frame_json=kernel.execute_code(["pd.DataFrame.to_json(df,orient='columns')"])
+        frame_json=kernel.execute_code(["pd.DataFrame.to_json("+df_name+",orient='columns')"])
         frame_json= frame_json[0]      
         df=pd.read_json(frame_json[1:-1],orient='columns')
         frame_html = pd.DataFrame.to_html(df, max_rows=20, max_cols=100, justify='justify-all',

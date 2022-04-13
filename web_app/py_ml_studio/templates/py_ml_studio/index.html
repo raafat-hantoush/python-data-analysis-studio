@@ -55,7 +55,7 @@
 
     <div class="container-fluid mt-2">
         <div class="row row-height" >
-            <div class="col-2 tree_view left" >
+            <div class="col-3 tree_view left" >
                 <input id="search-input" class="search-input" autocomplete="off" />
                 <br />
                 <div id="jstree"> </div>
@@ -63,8 +63,15 @@
             <div id="steps_list_div" class="col-4 left">
                 {% include "py_ml_studio/steps_list.html" %}
             </div>
-            <div class="col-6">
-                <button type="button" onclick="load_data_frame()" class="btn btn-link btn-sm" name="refresh_data" value=False>Refresh data</button>
+            <div class="col-5">
+                <button type="button" onclick="load_data_frame('df')" class="btn btn-link btn-sm" name="refresh_data" value=False>df</button>
+                <button type="button" onclick="load_data_frame('X')" class="btn btn-link btn-sm" name="refresh_data" value=False>X</button>
+                <button type="button" onclick="load_data_frame('y')" class="btn btn-link btn-sm" name="refresh_data" value=False>y</button>
+                <button type="button" onclick="load_data_frame('X_train')" class="btn btn-link btn-sm" name="refresh_data" value=False>X_train</button>
+                <button type="button" onclick="load_data_frame('y_train')" class="btn btn-link btn-sm" name="refresh_data" value=False>y_train</button>
+                <button type="button" onclick="load_data_frame('X_test')" class="btn btn-link btn-sm" name="refresh_data" value=False>X_test</button>
+                <button type="button" onclick="load_data_frame('y_test')" class="btn btn-link btn-sm" name="refresh_data" value=False>y_test</button>
+
                 <div class="h-20" id="data_frame_div" style="height:40vh;overflow-y:auto;overflow-x:auto">
                     {{ dataframe|safe }}
                 </div>
@@ -349,11 +356,11 @@
     </script>
 
     <script>
-        function load_data_frame(){
+        function load_data_frame(data_frame_name){
             $.ajax({
                 type: "GET",
                 headers: {'X-CSRFToken': csrftoken},
-                url: "/mlstudio/load_data_frame",
+                url: "/mlstudio/load_data_frame?data="+data_frame_name,
                 data: {
                 },
                 success: function (frame_html) {

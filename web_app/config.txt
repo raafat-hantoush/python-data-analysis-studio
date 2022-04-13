@@ -3,5 +3,5 @@ Source_Code_Template_Path=/Users/raafat.hantoush/Documents/GitHub/python-data-an
 
 [Jupyter]
 Localhost_Port:8888
-Token=0563ec0553f4d40cad3bc04451b3a1bec43104ce90f9daa5
-Kernel_id=12defe3f-b544-4133-a37f-90de0dd34de3
+Token=61436614e0e411d634e261f7942cc9c378c01a6be54a0555
+Kernel_id=301972bf-419c-4e17-8068-554d2c82b067

@@ -46,6 +46,8 @@ def execute_code(code):
     for i, c in enumerate(code):
         print("kernel execute request "+ c)
         ws.send(json.dumps(send_execute_request(c)))
+        execute_reply=False
+
         while True:
             try:
                 rsp = json.loads(ws.recv())
@@ -59,7 +61,6 @@ def execute_code(code):
                     print("stream content "+rsp['content']['text'])
                     code_output.append(rsp["content"]["text"])
                     break;
-                
                 elif msg_type=="execute_result":
                     #print(rsp["content"]["data"]['text/plain'])
                     if 'text/html' in rsp["content"]["data"]:
@@ -71,14 +72,19 @@ def execute_code(code):
                 elif msg_type=="status":
                     if ("execution_state" in rsp['content']):
                         execution_state=rsp['content']["execution_state"]
+                        print(execute_reply)
+                        if (execute_reply):
+                            print("no output for this specific command")
+                            code_output.append("command runs successfully at "+ datetime.datetime.now().strftime("%H:%M:%S")) ##%d.%m.%Y 
+                            break
                         #print(execution_state)
                               
                 elif msg_type=="execute_reply":
                     if ('execution_count' and 'status' in rsp['content']):
+                        execute_reply=True;
                         ## only break the loop when the execution finished and the stream returned in case there is stream
                         if execution_state=="idle":
-                            print("no output for this specific command")
-                            break
+                            pass
                 
             except json.JSONDecodeError as e:
                 print('Error decoding JSON: {}'.format(e))

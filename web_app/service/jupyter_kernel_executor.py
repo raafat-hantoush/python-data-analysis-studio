@@ -3,7 +3,8 @@ import datetime
 import uuid
 import os
 from websocket import create_connection
-
+import requests 
+import re
 '''
 credit to https://gist.github.com/manics
 '''
@@ -14,15 +15,58 @@ reading from config file
 '''
 import configparser
 config = configparser.ConfigParser()
-config.read(path +'/config.txt')
-token=config['Jupyter']['Token']
-jupyter_port=config['Jupyter']['Localhost_Port']
-kernel_id=config['Jupyter']['Kernel_id']
+config.read(path+ '/config.txt')
+#config.read('../config.txt')
 
+'''
+get Juypter server params
+'''
+def get_juypter_server_params():
+    result= os.popen("jupyter notebook list").read()
+    jupyter_url=re.search("(?P<url>https?://[^\s]+)", result).group("url")
+    if len(jupyter_url) > 30 : 
+        jupyter_port=jupyter_url[17:21]
+        token= jupyter_url[int(jupyter_url.find("token")+6):]
+        print("juypter server token is " + token)
+        return jupyter_port,token
+    else: 
+        return "",""
+
+jupyter_port,token= get_juypter_server_params()
+
+#token=config['Jupyter']['Token']
+#jupyter_port=config['Jupyter']['Localhost_Port']
+##kernel_id=config['Jupyter']['Kernel_id'] ##static kernel id
+
+kernel_id=""
 base = 'ws://localhost:'+jupyter_port
+http_base= 'http://localhost:' + jupyter_port
 url = base + '/api/kernels/'
+http_url= '{}/api/kernels'.format(http_base)
 headers = {'Authorization': 'Token '+token}
 
+'''
+create juypter kernel
+'''
+def create_kernel():
+    data = {}
+    kernel_id= ""
+    # sending post request and saving response as response object
+    r = requests.post(url = http_url,
+                    data = data,headers=headers)
+
+    kernel = json.loads(r.text)
+    print(kernel)
+    if 'id' in kernel:
+        kernel_id = kernel['id']
+        print(
+            '''Created kernel {0}.'''.format(kernel_id)
+        )
+    return kernel_id
+
+'''
+create Juypter message request 
+'''
 def send_execute_request(code):
     #print("kernel execute request "+ code)
     msg_type = 'execute_request';
@@ -38,7 +82,13 @@ def send_execute_request(code):
         'content': content }
     return msg
 
+'''
+execute source code on juypter kernel
+'''
 def execute_code(code): 
+    global kernel_id
+    if (kernel_id==""):
+        kernel_id = create_kernel()
     # Execution request/reply is done on websockets channels
     ws = create_connection(url+kernel_id+"/channels",
      header=headers)
@@ -103,5 +153,8 @@ def execute_code(code):
     #print (code_output)
     #ws.close()
     return code_output
+
 #y=execute_code(["print('Hello worl')"])
 #print(y)
+
+

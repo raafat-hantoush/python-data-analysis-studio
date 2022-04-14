@@ -1,7 +1,2 @@
 [DEFAULT]
-Source_Code_Template_Path=/Users/raafat.hantoush/Documents/GitHub/python-data-analysis-studio/web_app/code_generation_source_template.ipynb
-
-[Jupyter]
-Localhost_Port:8888
-Token=61436614e0e411d634e261f7942cc9c378c01a6be54a0555
-Kernel_id=301972bf-419c-4e17-8068-554d2c82b067
+Source_Code_Template_Path=code_generation_source_template.ipynb

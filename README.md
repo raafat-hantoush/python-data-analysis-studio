@@ -3,17 +3,18 @@ Data Analysis/Science Tool to generate python code and automate data cleaning, t
 
 # Installation
 1. clone this github repository into your local machine.
-2. setup a new conda environment with all the packages listed in the requirments.txt file using the command below. requirements.txt file is located inside the web_app folder.
-
-```conda create --name <env> --file requirements.txt```
+2. setup a new conda environment with all the packages listed using the commands below.
 
 ## Required Libraries
 - Django
 ``` conda install -c anaconda django ```
+
 - nbformat 
 ``` conda install -c conda-forge nbformat ```
+
 - websocket-client
 ``` conda install -c conda-forge websocket-client ```
+
 - Requests
 ```conda install -c anaconda requests ```
 

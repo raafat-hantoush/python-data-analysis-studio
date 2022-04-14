@@ -64,7 +64,7 @@ def load_generated_code_dict():
     ## read the path from the config file 
     config = configparser.ConfigParser()
     config.read(path +'/config.txt')
-    source_code_template_path=config['DEFAULT']['Source_Code_Template_Path']
+    source_code_template_path=path + "/" + config['DEFAULT']['Source_Code_Template_Path']
     
     cells_sources = read_notebook_file_cell_sources(source_code_template_path)
     generated_code_dict=parse_cells_sources(cells_sources)

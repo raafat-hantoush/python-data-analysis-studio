@@ -14,6 +14,9 @@ Data Analysis/Science Tool to generate python code and automate data cleaning, t
 ``` conda install -c conda-forge nbformat ```
 - websocket-client
 ``` conda install -c conda-forge websocket-client ```
+- Requests
+```conda install -c anaconda requests ```
+
 - pandas
 ```conda install pandas ```
 

@@ -19,7 +19,7 @@
         hostClass: 'blue-background-class',
         // when dragging start
         onStart: function(evt){
-            toggle_code();
+            hide_code();
         },
         // Called when dragging element changes position
         onUpdate: function(evt) {
@@ -28,7 +28,7 @@
             save_experiment();
         },
         onEnd: function(evt) {
-            toggle_code();
+            //toggle_code();
         },        
     });
 </script>
@@ -115,6 +115,13 @@
                 if($(this).is(":visible")){$( this ).hide()}
                 else{ $( this ).show()}
             }); 
+        }
+        function hide_code(){
+            var step_code_containers = document.getElementsByClassName("step_code_container"); 
+
+            $( ".step_code_container" ).each(function( index ) {
+                if($(this).is(":visible")){$( this ).hide()}
+            });
         }
     </script>
     

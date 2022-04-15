@@ -47,7 +47,7 @@ To start usng the web app:
 
 3. if the previous command run successfully, then you can head to the web browser and open the folloing url:
 
-```http://localhost:8000/mlstudio/```
+```http://localhost:8000```
 
 4. from the File Menu, choose open project and put the file path for a new project file or the file path for an existing project file. The Project file extension is ```.pickle```. 
 

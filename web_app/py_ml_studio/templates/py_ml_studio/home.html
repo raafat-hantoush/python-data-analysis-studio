@@ -1,0 +1,107 @@
+{% extends "py_ml_studio/base.html" %}
+{% block content%}
+{% load static %}
+<link rel="stylesheet" href="{% static 'py_ml_studio/style.css' %}">
+<link rel="stylesheet" href="{% static 'py_ml_studio/dist/themes/default/style.min.css' %}" />
+
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+<h4 class="ms-5 mt-5">path</h4>
+<div class="d-flex justify-content-between me-5">
+<div id="current_path_div" class="mb-4 ms-5  bg-light"> </div>
+<div>
+<a class="btn btn-sm btn-success me-5" onclick="open_new_project(this)" 
+href="#" id="new_project_link_btn" data-bs-toggle="tooltip" data-bs-placement="top" 
+title="The New Project will be created in the current directory selected in the list. the new project fle named Untitled with .pickle extension" >New project</a>
+</div>
+</div>
+<script>
+    var current_directory ="{{current_directory}}";
+    files_pathes= current_directory.split("/")
+    //console.log(file_pathes[2])
+    for(var index in files_pathes){
+        console.log(files_pathes[index]);
+        var tag = document.createElement("a"); // <a></a>
+        var text = document.createTextNode(files_pathes[index]); 
+        tag.appendChild(text); 
+        tag.href="#";
+        tag.id="path_"+ index.toString();
+        tag.setAttribute("onclick","open_file_path(this)");
+        console.log(index.toString())
+        var element = document.getElementById("current_path_div");
+        element.appendChild(tag); // <body> <p>TEST TEXT</p> </body>
+        element.appendChild( document.createTextNode( '\u00A0'+" / " ) );
+    }
+</script>
+<div class="ms-5 mt-2 me-5">    
+    <table class="table table-hover">
+        <caption>List of files</caption>
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for file in files_list %}
+        <tr>
+            <td><a class="file_link" href="#" onclick="open_file_folder(this)">{{file}}</a></td>
+        </tr>
+        {% endfor %} 
+        </tbody>
+      </table>
+</div>
+
+<script>
+    var files_list="{{files_list|safe}}"
+    console.log("files list " + files_list.toString())
+
+    function open_file_folder(e){
+        console.log("open_file_folder  is invoked!");
+        //document.getElementsByClassName()
+        if(e.innerHTML.includes(".pickle"))
+        {
+            e.href=window.location.origin+"/mlstudio/projects/{{current_directory}}/" + e.innerHTML;
+            e.target="_blank";
+        }
+        else
+        {
+            e.href=window.location.origin + "/mlstudio/?dir={{current_directory}}/" + e.innerHTML;
+        }
+    }
+
+    function open_new_project(e){
+        console.log("open_new_project is invoked!");
+        if (files_list.includes("Untitled.pickle")){
+            var today = new Date();
+            var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+            var time = today.getHours() + "-" + today.getMinutes();
+            var dateTime = date+'_'+time;
+            new_project_name="Untitled_" + dateTime + ".pickle";
+        }
+        else{
+            new_project_name="Untitled.pickle";
+        }
+        if(new_project_name.includes(".pickle"))
+        {
+            e.href=window.location.origin+"/mlstudio/projects/{{current_directory}}/" + new_project_name;
+            e.target="_blank";
+        }
+    }
+
+    function open_file_path(e){
+        console.log("open_file_path is invoked!");
+        path_index=e.id.substring(5); // get the path id
+        console.log("path index is " + path_index);
+        let current_path="";
+        
+        for (let i = 1; i <= parseInt(path_index); i++) {
+            current_path += files_pathes[i];
+            if (i!=parseInt(path_index)) current_path += "/";
+          }
+        console.log(current_path);
+        e.href=window.location.origin + "/mlstudio/?dir=/"+current_path;
+    }
+</script>
+
+{% endblock content %}

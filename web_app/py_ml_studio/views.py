@@ -16,7 +16,7 @@ from service.code_generation import load_generated_code_dict
 from service.code_generation import generate_tree_view_json_data
 from service.code_generation import export_experiment_to_notebook
 import service.jupyter_kernel_executor as kernel
-
+from service.file_explorer import get_project_files_directories_list
 '''
 helper function to get the data frame via jupyter kernel request
 '''
@@ -371,4 +371,13 @@ def reload_source_code_jstree_nodes_template(request):
 
 # Default View
 def index(request):
-    return render(request, 'py_ml_studio/index.html')
+    path=request.GET.get('dir', os.path.expanduser("~/Documents"))
+    if path!="":
+        files_list= get_project_files_directories_list(path)
+        print(files_list)
+        content={}
+        content['current_directory'] = path
+        content["files_list"]=files_list
+        return render(request, 'py_ml_studio/home.html',context=content)
+    else:
+        return render(request, 'py_ml_studio/home.html')

@@ -3,7 +3,6 @@ import os
 if os.name == 'nt':
     import win32api, win32con
 
-
 def folder_is_hidden(f):
     if os.name== 'nt':
         pass;

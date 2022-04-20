@@ -33,6 +33,10 @@ Data Analysis/Science Tool to generate python code and automate data cleaning, t
 - pillow 
 ```conda install -c anaconda pillow ```
 
+- Juypter
+```conda install -c anaconda jupyter ```
+
+
 
 
 # Getting started

@@ -3,8 +3,17 @@ Data Analysis/Science Tool to generate python code and automate data cleaning, t
 
 # Installation
 1. clone this github repository into your local machine.
-2. setup a new conda environment with all the packages listed using the commands below.
+2. setup a new conda environment with all the packages listed in the requirments.txt file using the command below.
 
+  ```conda create --name mlstudio --file requirements.txt```
+
+```mlstudio: is the environment name. You can choose any other name that you prefer.```
+ 
+#### or you can simply install the required libraries from requirments.txt to an existing conda environment using the following conda command:
+
+  ``` conda install --name <yourenv>  --file requirements.txt ```
+  
+  
 ## Required Libraries
 - Django
 ``` conda install -c anaconda django ```
@@ -36,14 +45,13 @@ Data Analysis/Science Tool to generate python code and automate data cleaning, t
 - Juypter
 ```conda install -c anaconda jupyter ```
 
-
-
-
 # Getting started
 To start usng the web app:
 1. activate the conda environment that you just created using the command below in the terminal:
 
-```conda activate <env>``` env:the environment name that you chose.
+```conda activate <env>``` 
+
+```env:the environment name that you chose. e.g. mlstudio```
 
 2. from the terminal,  browse to the folder web_app that contains the file manage.py and run the following command to start the web server:
 
@@ -53,7 +61,7 @@ To start usng the web app:
 
 ```http://localhost:8000```
 
-4. from the File Menu, choose open project and put the file path for a new project file or the file path for an existing project file. The Project file extension is ```.pickle```. 
+4. From the home page, browse to the folder where you want to create a new project in. Click ```New Project``` button. A new project will be created and opened. The Project file extension is ```.pickle```. 
 
 # Contributors
 - [Raafat H](https://github.com/raafat-hantoush)

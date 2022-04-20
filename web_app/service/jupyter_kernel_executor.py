@@ -56,7 +56,6 @@ def create_kernel():
                     data = data,headers=headers)
 
     kernel = json.loads(r.text)
-    print(kernel)
     if 'id' in kernel:
         kernel_id = kernel['id']
         print(
@@ -122,12 +121,10 @@ def execute_code(code):
                 elif msg_type=="status":
                     if ("execution_state" in rsp['content']):
                         execution_state=rsp['content']["execution_state"]
-                        #print(execute_reply)
                         if (execute_reply):
                             print("no output for this specific command")
                             code_output.append("command runs successfully at "+ datetime.datetime.now().strftime("%H:%M:%S")) ##%d.%m.%Y 
                             break
-                        #print(execution_state)
                               
                 elif msg_type=="execute_reply":
                     if ('execution_count' and 'status' in rsp['content']):
@@ -144,13 +141,11 @@ def execute_code(code):
             print("errors are raised ")
             error=""
             error='Failed to execute: {}'.format(rsp["content"]["evalue"])
-            print("length of code is "+ str(len(code)))
             if len(code)>1:
                 code_output.append("Step: "+str(i)+" "+ error )
             else:
                 code_output.append(error )
-            #raise Exception(error)
-    #print (code_output)
+    
     #ws.close()
     return code_output
 

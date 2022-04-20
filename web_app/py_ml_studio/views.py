@@ -41,7 +41,7 @@ def load_data_frame(request):
     df_name=request.GET.get('data', '')
     if df_name in ["y","y_train","y_test"] :
         df_name="pd.DataFrame("+df_name+")"
-        print(df_name)
+        #print(df_name)
     try:
         frame_json=kernel.execute_code(["pd.DataFrame.to_json("+df_name+",orient='columns')"])
         frame_json= frame_json[0]      
@@ -59,29 +59,29 @@ adding new step to the experiment via ajax call on jstree double click
 '''
 def add_new_step(request):
     try:
+        print("add new step is invoked")
         current_experiment=""
         experiments=[]
         commands=[]
         steps,steps_desc,steps_codes = [],[],[]
         steps_out="";new_step=""
-        path = os.getcwd()
         filepath=request.GET['filepath']
         project_file=open(filepath, 'rb')
         print("loading the pickle file")
         if project_file: experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict= pickle.load(project_file)  
-        if experiments:  
+        if experiments:
             steps,steps_desc,steps_codes=exp.get_experiment_info(experiments,current_experiment)
-            print("steps_codes are: " ,steps_codes)
         if not commands: commands=[]
         if not generated_code_dict: 
             generated_code_dict=load_generated_code_dict()
-    except FileNotFoundError: print("project file not found")  
+    except FileNotFoundError: 
+        print("new step project file not found")  
      
     new_step = request.GET['new_step']
-    print(request.GET['filepath'])
+    ##print(request.GET['filepath'])
     
     if new_step:
-        print("step_selected is: "+ new_step)
+        ##print("step_selected is: "+ new_step)
         steps.append(new_step)
         
         if(new_step in generated_code_dict):
@@ -92,12 +92,11 @@ def add_new_step(request):
         else:
             steps_desc.append("")
             steps_codes.append("")
-        
+                
         ## update the experiment steps
         exp.update_experiment_steps(experiments,current_experiment,steps,steps_desc,steps_codes)
         
         steps_out= zip(steps,steps_desc,steps_codes)
-
         print("saving to pickle file")
         pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict], open(filepath, 'wb'))
         rendered=render_to_string('py_ml_studio/steps_list.html', {'steps':steps_out}) 
@@ -108,15 +107,13 @@ Creating new Project/ Open existing project from the  File menu
 '''
 def load_project(request,filepath):
     print("load_project is invoked!")
-    print("file path is "+ filepath)
+    #print("file path is "+ filepath)
     # get current directory
     path = os.getcwd()
     #print(os.listdir("/Users"))
-    
-    print("Current Directory", path)   
+    #print("Current Directory is ", path)   
     result=""
     df=pd.DataFrame()
-    toggle_code=None
     plot_type=""; plt_encoded=""
     stat_type=""
     current_experiment=""
@@ -125,19 +122,19 @@ def load_project(request,filepath):
     steps,steps_desc,steps_codes = [],[],[]
     generated_code_dict={}
     commands=[]
-    settings={"toggle_code":False}
+    settings={}
     
     try: #load experiments 
         project_file=open(filepath, 'rb')
-        #print(filepath)
         print("loading the project pickle file")
         if project_file: experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict= pickle.load(project_file)  
         if experiments:
             steps,steps_desc,steps_codes=exp.get_experiment_info(experiments,current_experiment)
-            print("steps_codes are: " ,steps_codes)
+            #print("steps_codes are: " ,steps_codes)
         if not commands: commands=[]
         if not code_output_msg: code_output_msg=[]
-        if not settings: settings={"toggle_code":False}
+        if not settings: settings={}
+        
         #if not generated_code_dict: ##UPDATE :load the source code every time
         generated_code_dict=load_generated_code_dict()
         
@@ -148,8 +145,20 @@ def load_project(request,filepath):
             '''
             generate_tree_view_json_data(path+"/py_ml_studio/static/py_ml_studio/")
     
-    except FileNotFoundError: print("project file not found")    
+    except FileNotFoundError: 
+        print("project file not found")
 
+        ## if it is a new project then create experiment_0 by default.
+        print("new experiment was pressed")
+        experiment_id="experiment_"+str(len(experiments))
+        print("current experiment is "+ experiment_id)
+        current_experiment=experiment_id
+        steps,steps_desc,steps_codes=[],[],[]
+        commands.append(experiment_id)
+        experiment=exp.Experiment(experiment_id)
+        experiments.append(experiment)
+        pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict],open(filepath, 'wb'))
+            
     '''
     handling post requests
     '''
@@ -179,26 +188,17 @@ def load_project(request,filepath):
         '''
         stat_type=request.POST.get('stat_type')
         #print(stat_type)
-
-        '''
-        toggling code
-        '''
-        """ toggle_code=request.POST.get('toggle_code')
-        if toggle_code:
-            old_val=settings.get("toggle_code")
-            ##print("old val is "+ str(old_val))
-            settings["toggle_code"]=not old_val
-            toggle_code=not old_val """
         
         '''
         experiments commands
         '''
         command_selected = request.POST.get('command_selected')
+        
         if command_selected:
             if(command_selected=="new experiment"):
                 print("new experiment was pressed")
                 experiment_id="experiment_"+str(len(experiments))
-                print("current experiment is "+ experiment_id)
+                #print("current experiment is "+ experiment_id)
                 current_experiment=experiment_id
                 steps,steps_desc,steps_codes=[],[],[]
                 commands.append(experiment_id)
@@ -210,18 +210,18 @@ def load_project(request,filepath):
                 if current_experiment:
                     print("copy current experiment was pressed")
                     experiment_id="experiment_"+str(len(experiments))
-                    print("current experiment is "+ experiment_id)
+                    #print("current experiment is "+ experiment_id)
                     current_experiment=experiment_id
                     commands.append(experiment_id)
-                    experiment=exp.Experiment(experiment_id,steps=steps,
-                                              steps_codes=steps_codes,steps_desc=steps_desc)
+                    experiment=exp.Experiment(experiment_id)
+                    experiment.steps=steps; experiment.steps_desc=steps_desc; experiment.steps_codes=steps_codes;
                     experiments.append(experiment)
                     pickle.dump([experiments,current_experiment,commands,
                                  settings,code_output_msg,generated_code_dict],open(filepath, 'wb'))
                     
             elif(command_selected.startswith("experiment_")):
                 current_experiment=command_selected
-                print("specific "+ current_experiment+ " was pressed")
+                #print("specific "+ current_experiment+ " was pressed")
                 steps,steps_desc,steps_codes=exp.get_experiment_info(experiments,current_experiment)
             else: pass
             
@@ -234,7 +234,6 @@ def load_project(request,filepath):
                 print("the experiment has no steps to save!")
                 steps=[];steps_desc=[];steps_codes=[]
             else:
-                print("here new updated steps " + new_steps.split(',')[0])
                 steps=new_steps.split(',')
                 steps_desc=request.POST.get('steps_desc').split('%%%')
                 steps_codes=request.POST.get('steps_codes').split('%%%')
@@ -247,12 +246,12 @@ def load_project(request,filepath):
             if exported_steps=="empty":
                 print("the experiment has no steps to export!")
             else:
-                print("here exported steps " + exported_steps.split(',')[0])
+                #print("here exported steps " + exported_steps.split(',')[0])
                 exported_steps=exported_steps.split(',')
                 exported_steps_desc=request.POST.get('exported_steps_desc').split('%%%')
                 exported_steps_codes=request.POST.get('exported_steps_codes').split('%%%')   
                 filepath=request.POST.get('filepath')
-                print(filepath)
+                #print(filepath)
                 experiment_name=request.POST.get('experiment_name')     
                 
                 export_experiment_to_notebook(exported_steps,exported_steps_desc,exported_steps_codes,
@@ -265,15 +264,12 @@ def load_project(request,filepath):
             print("run_step is invoked!")
             try:
                 result=kernel.execute_code([run_step])
-                #code_output_msg=["<h1>this is a test<h1>"]
                 code_output_msg=result
-                #code_output_msg.extend(result)
-                print("codoutputmsg "+ str(len(code_output_msg)))
+                #print("codoutputmsg "+ str(len(code_output_msg)))
                 pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict], 
                             open(filepath, 'wb'))
             except Exception as e:
                 print("run step exception:"+str(e))
-                #code_output_msg.append(str(e))
                 code_output_msg=str(e)
             
             return HttpResponse(json.dumps("\n".join(code_output_msg)), content_type='application/json')    
@@ -293,22 +289,14 @@ def load_project(request,filepath):
             ##code_output_msg[::-1] for reversing the message output
             return HttpResponse(json.dumps("\n".join(code_output_msg)), content_type='application/json')    
             
-    ## update the experiment steps
+    ## update the experiment steps    
     exp.update_experiment_steps(experiments,current_experiment,steps,steps_desc,steps_codes)
     
-    """ print('steps:',steps)
-    print('steps_desc:',steps_desc)
-    print('steps_code:',steps_codes)
-    print("commands:",commands) """
+    ##load the data frame
+    #df=get_data_frame()
     
-    ##load teh data frame
-    df=get_data_frame()
-    
-    if toggle_code is not None :
-         content["toggle_code"]=toggle_code
-         
     if stat_type!="" and stat_type is not None :
-        #df=get_data_frame()
+        df=get_data_frame()
         return HttpResponse(json.dumps(get_stats_html(df,stat_type)), content_type='application/json')
         #content["stats"]=get_stats_html(df,stat_type)
         
@@ -320,18 +308,7 @@ def load_project(request,filepath):
 
     '''
     convert dataframe to readable html content
-    '''
-    
-    try:
-        pass
-            #frame_json=kernel.execute_code(["pd.DataFrame.to_json(df,orient='columns')"])
-            #frame_json= frame_json[0]          
-            #df=pd.read_json(frame_json[1:-1],orient='columns')
-            #df=pd.DataFrame({})
-    except Exception as e:
-                print("data frame to json exception: "+str(e))
-                code_output_msg.extend(str(e))
-                
+    '''      
     #pd.DataFrame.to_html(df, max_rows=20, max_cols=100, justify='justify-all', show_dimensions=True, bold_rows=False)"])[0]
     frame_html = pd.DataFrame.to_html(df, max_rows=20, max_cols=100, justify='justify-all', show_dimensions=True, bold_rows=False)
     frame_html = frame_html.replace('<table border="1" class="dataframe">', '<table border="1" class="table table-sm table-responsive">')
@@ -347,11 +324,6 @@ def load_project(request,filepath):
     ## save it into the project file
     print("saving to the project pickle file")
     pickle.dump([experiments,current_experiment,commands,settings,code_output_msg,generated_code_dict], open(filepath, 'wb'))
-    
-    '''
-    save changed dataframe in temp dictionary
-    '''
-    #pd.to_pickle(df, path+"/web_app/"+'temp/tmp.pkl')
     
     return render(request, 'py_ml_studio/index.html', context=content)
 
@@ -374,7 +346,6 @@ def index(request):
     path=request.GET.get('dir', os.path.expanduser("~/Documents"))
     if path!="":
         files_list= get_project_files_directories_list(path)
-        print(files_list)
         content={}
         content['current_directory'] = path
         content["files_list"]=files_list

@@ -1,0 +1,14 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file requirements.txt
+# platform: osx-64
+python=3.9.*
+Django=*
+nbformat=*
+websocket-client=*
+requests=*
+pandas=*
+numpy=*
+matplotlib=*
+seaborn=*
+pillow=*
+jupyter=*

@@ -23,7 +23,17 @@ get Juypter server params
 '''
 def get_juypter_server_params():
     result= os.popen("jupyter notebook list").read()
-    jupyter_url=re.search("(?P<url>https?://[^\s]+)", result).group("url")
+    jupyter_url=""
+    
+    if "http" in result:
+        jupyter_url=re.search("(?P<url>https?://[^\s]+)", result).group("url")
+    else:
+        pass
+        """ os.popen("jupyter notebook")
+        result= os.popen("jupyter notebook list").read()
+        if "http" in result:
+            jupyter_url=re.search("(?P<url>https?://[^\s]+)", result).group("url") """
+        
     if len(jupyter_url) > 30 : 
         jupyter_port=jupyter_url[17:21]
         token= jupyter_url[int(jupyter_url.find("token")+6):]

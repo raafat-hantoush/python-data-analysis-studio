@@ -20,7 +20,7 @@ def plot_vizualisation(df,plot_type="hist",figsize=(9,8)):
     else: 
         fig=plt.figure()
     plt.close(fig)
-    ## save the figre to binary file     
+    ## save the figure to binary file     
     fig.savefig(tmpfile, format='png')
     ## encoding it using base64
     plt_encoded = base64.b64encode(tmpfile.getvalue()).decode('utf-8')

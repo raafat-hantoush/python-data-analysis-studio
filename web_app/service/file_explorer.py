@@ -6,8 +6,9 @@ if os.name == 'nt':
 
 def folder_is_hidden(f):
     if os.name== 'nt':
-        attribute = win32api.GetFileAttributes(f)
-        return attribute & (win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM)
+        pass;
+        #attribute = win32api.GetFileAttributes(f)
+        #return attribute & (win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM)
     else:
         return f.startswith('.') #linux-osx
     

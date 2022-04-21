@@ -344,6 +344,7 @@ def reload_source_code_jstree_nodes_template(request):
 # Default View
 def index(request):
     path=request.GET.get('dir', os.path.expanduser("~/Documents"))
+    path=path.replace("\\","/")
     if path!="":
         files_list= get_project_files_directories_list(path)
         content={}

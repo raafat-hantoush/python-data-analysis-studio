@@ -1,5 +1,6 @@
-::cd "$(dirname "$0")"
-cd /D "%~dp0"
+cd "%~dp0"
+cmd /k
+set PATH=%PATH%;C:\Anaconda3;C:\Anaconda3\Scripts\
 @pause
 :: conda activate mlstudio
 :: python manage.py runserver

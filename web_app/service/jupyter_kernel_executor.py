@@ -1,5 +1,5 @@
 import json
-import datetime
+from  datetime import datetime,timezone
 import uuid
 import os
 from websocket import create_connection
@@ -83,7 +83,7 @@ def send_execute_request(code):
     hdr = { 'msg_id' : uuid.uuid1().hex, 
         'username': 'test', 
         'session': uuid.uuid1().hex, 
-        'data': datetime.datetime.now().isoformat(),
+        'data': datetime.now().isoformat(),
         'msg_type': msg_type,
         'version' : '5.0' }
     msg = { 'header': hdr, 'parent_header': hdr, 
@@ -117,11 +117,18 @@ def execute_code(code):
                 if msg_type in ('error'):
                     break
                 if msg_type == 'stream':
-                    #print("stream content "+rsp['content']['text'])
+                    ##print("stream content "+rsp['content']['text'])
                     code_output.append(rsp["content"]["text"])
                     break;
+                elif msg_type=="display_data":
+                    #print(rsp["content"]["data"]["image/png"])
+                    if 'image/png' in rsp["content"]["data"]:
+                        img_src="data:image/png;base64," + rsp["content"]["data"]["image/png"]
+                        img_html="<img width='100%' src="+img_src+" >"
+                        code_output.append(img_html)
+                        break;
                 elif msg_type=="execute_result":
-                    #print(rsp["content"]["data"]['text/plain'])
+                    #print(rsp["content"]["data"]['text/html'])
                     if 'text/html' in rsp["content"]["data"]:
                         code_output.append(rsp["content"]["data"]['text/html'])
                     else:
@@ -133,7 +140,14 @@ def execute_code(code):
                         execution_state=rsp['content']["execution_state"]
                         if (execute_reply):
                             print("no output for this specific command")
-                            code_output.append("command runs successfully at "+ datetime.datetime.now().strftime("%H:%M:%S")) ##%d.%m.%Y 
+                            
+                            if len(code)>1: ## meaning if it is run_all_above_command
+                                step_index="Step "+str(i) +": "
+                            else:
+                                step_index=""
+                                
+                            code_output.append(step_index+"command runs successfully at "+ 
+                                               datetime.now(timezone.utc).astimezone().strftime("%H:%M:%S")) ##%d.%m.%Y 
                             break
                               
                 elif msg_type=="execute_reply":

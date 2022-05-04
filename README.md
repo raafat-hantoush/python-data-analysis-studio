@@ -56,8 +56,9 @@ To start usng the web app:
 2. from the terminal,  browse to the folder web_app that contains the file manage.py and run the following command to start the web server:
 
 ```python manage.py runserver```
+```Important: Don`t panic if you see some error red warning message about migrating.  You can simply ignore it. If it is running successfully, then you will see the url http://localhost:8000
 
-3. if the previous command run successfully, then you can head to the web browser and open the folloing url:
+3. if the previous command run successfully, then you can head to the web browser and open the following url:
 
 ```http://localhost:8000```
 

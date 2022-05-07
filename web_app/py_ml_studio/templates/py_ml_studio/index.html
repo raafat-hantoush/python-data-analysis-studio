@@ -53,16 +53,20 @@
         {% include "py_ml_studio/commands.html" %}
     </div>
 
-    <div class="container-fluid mt-2">
+    <div class="container-fluid mt-2 ms-4">
         <div class="row row-height" >
-            <div class="col-3 tree_view left" >
-                <input id="search-input" class="search-input" autocomplete="off" />
-                <br />
-                <div id="jstree"> </div>
+            <div class="col-7 left">
+                <div class="row d-flex justify-content-center">
+                <center><input id="search-input" class="w-75 mb-2 search-input" placeholder="search...  hit space for all options" autocomplete="off" /></center>
+                <div id="tree_view_container" class="tree_view" >
+                    <div id="jstree"> </div>
+                </div>
+                <div class="left" id="steps_list_div">
+                    {% include "py_ml_studio/steps_list.html" %}
+                </div>
             </div>
-            <div id="steps_list_div" class="col-4 left">
-                {% include "py_ml_studio/steps_list.html" %}
-            </div>
+        </div>
+
             <div class="col-5">
                 <button type="button" onclick="load_data_frame('df')" class="btn btn-link btn-sm" name="refresh_data" value=False>df</button>
                 <button type="button" onclick="load_data_frame('X')" class="btn btn-link btn-sm" name="refresh_data" value=False>X</button>
@@ -219,6 +223,7 @@
 
                             //  saving experiment after adding new step  
                             save_experiment();
+                            $("#tree_view_container").hide();
                         },
                         error: function (response) {
                             // alert the error if any error occured
@@ -237,7 +242,11 @@
             $(".search-input").keyup(function () {
                 window.searchString = $(this).val();
                 console.log("keyup is invoked!");
-                    $('#jstree').jstree('search', window.searchString);
+                $('#jstree').jstree('search', window.searchString);
+                $("#tree_view_container").show();
+                if($(this).val()==""){
+                    $("#tree_view_container").hide();
+                }
             });
         });
     </script>
@@ -273,8 +282,6 @@
                 $("#new_project_form").submit();
             }
         }
-
-
 
         function get_steps_info(){
             var steps_ids = document.getElementsByClassName("step_id"); 

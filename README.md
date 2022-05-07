@@ -61,7 +61,7 @@ To start usng the web app:
 
 ```Important: Don`t panic if you see some error red warning message about migrating, You can simply ignore it. If it is running successfully, then you will see the url http://localhost:8000```
 
-4. If the previous command run successfully, then you can head to the web browser and open the following url:
+4. If the previous command runs successfully, then you can head to the web browser and open the following url:
 
 ```http://localhost:8000```
 

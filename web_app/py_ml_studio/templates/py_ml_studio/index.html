@@ -53,21 +53,21 @@
         {% include "py_ml_studio/commands.html" %}
     </div>
 
-    <div class="container-fluid mt-2 ms-4">
-        <div class="row row-height" >
-            <div class="col-7 left">
+    <div class="container-fluid mt-2 mb-4 ms-4">
+        <div class="row row-height me-4" >
+            <div id="steps_container_div" class="col-7 left">
+
                 <div class="row d-flex justify-content-center">
-                <center><input id="search-input" class="w-75 mb-2 search-input" placeholder="search...  hit space for all options" autocomplete="off" /></center>
-                <div id="tree_view_container" class="tree_view" >
-                    <div id="jstree"> </div>
-                </div>
-                <div class="left" id="steps_list_div">
-                    {% include "py_ml_studio/steps_list.html" %}
+                    <div id="tree_view_container" class="tree_view" >
+                        <div id="jstree"> </div>
+                    </div>
+                    <div class="left" id="steps_list_div">
+                        {% include "py_ml_studio/steps_list.html" %}
+                    </div>
                 </div>
             </div>
-        </div>
 
-            <div class="col-5">
+            <div class="col-5 resizable">
                 <button type="button" onclick="load_data_frame('df')" class="btn btn-link btn-sm" name="refresh_data" value=False>df</button>
                 <button type="button" onclick="load_data_frame('X')" class="btn btn-link btn-sm" name="refresh_data" value=False>X</button>
                 <button type="button" onclick="load_data_frame('y')" class="btn btn-link btn-sm" name="refresh_data" value=False>y</button>
@@ -242,6 +242,7 @@
             $(".search-input").keyup(function () {
                 window.searchString = $(this).val();
                 console.log("keyup is invoked!");
+                $('#steps_container_div').scrollTop(0);
                 $('#jstree').jstree('search', window.searchString);
                 $("#tree_view_container").show();
                 if($(this).val()==""){
@@ -445,5 +446,71 @@
                 run_code(temp_code_editor.getValue());
             }
           });
+    </script>
+
+    <script>
+        // Credit to https://jsfiddle.net/daslicht/eh1paqzy/
+        (function ($) {
+
+            var parentOffset,
+                item,
+                overRight = false,
+                newWidth,
+                dragged = false;
+        
+            $.fn.dlResizeable = function( options ) {
+        
+               /* var settings = $.extend({
+                   
+                    color: "#556b2f",
+                    backgroundColor: "white"
+                }, options );*/
+                
+                item = this;
+                
+                $(document).mousedown(function (e) {
+                    newWidth = parentOffset.relX - item.outerWidth();
+                    if (overRight) {
+                        dragged = true;
+                    }
+                });
+        
+                $(document).mouseup( function (e) {
+                    dragged = false;
+                });
+        
+                $(document).mousemove( function (e) {
+                    parentOffset = item.offset();
+                    var relX = e.pageX - parentOffset.left;
+                    var relY = e.pageY - parentOffset.top;
+                    //item.text(relX + ":" + relY);
+                    var widthToAdd = 0;
+        
+                    /* check if mouse is above right border */
+                    if (relX >= item.outerWidth() - 4 && relX <= $("#steps_list_div").outerWidth()) {
+                        item.css("cursor", "col-resize");
+                        overRight = true;
+                    } else {
+                        item.css("cursor", "default");
+                        overRight = false;
+                    }
+                    if (dragged) {
+                        newWidth = relX - item.outerWidth();
+                        console.log("new width: ", newWidth);
+                        item.width(item.outerWidth() + newWidth);
+                    }
+        
+                });
+        
+                return this;
+            }
+        
+        }(jQuery));
+        
+        $(document).ready(function (e) {
+        
+            $("#steps_list_div").dlResizeable();
+        
+        });
     </script>
     {% endblock content %}

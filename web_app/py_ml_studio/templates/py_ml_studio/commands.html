@@ -14,6 +14,9 @@
             <div> 
                 <button type="submit" class="badge bg-primary mb-1 mx-auto" name="command_selected" value='new experiment'>New Experiment</button>
                 <button type="button" onclick="toggle_code()" class="badge bg-primary" name="toggle_code_btn" value=False>Toggle code</button>
+                <button type="button" onclick="scroll_top()" class="badge bg-primary" name="scroll_top__btn">Scroll Top</button>
+                <input id="search-input" class="w-25 mb-2 search-input" placeholder="search...  hit space for all options..." autocomplete="off" />
+
                 <span class="badge bg-info ms-3" id="current_experiment_lbl" >Current Experiment: {{ current_experiment|safe }}</span>
                 <button type="submit" class="badge bg-primary mb-1" name="command_selected" value='copy current experiment'>Copy Experiment</button>
                 <button id="delete_experiment_btn" type="button"  data-bs-toggle="modal" data-bs-target="#delExperimentModal" 

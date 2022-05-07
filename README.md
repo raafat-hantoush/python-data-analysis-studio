@@ -47,22 +47,25 @@ Data Analysis/Science Tool to generate python code and automate data cleaning, t
 
 # Getting started
 To start usng the web app:
-1. activate the conda environment that you just created using the command below in the terminal:
+1. Activate the conda environment that you just created using the command below in the terminal:
 
 ```conda activate <env>``` 
 
 ```env:the environment name that you chose. e.g. mlstudio```
 
-2. from the terminal,  browse to the folder web_app that contains the file manage.py and run the following command to start the web server:
+2. Make sure that you have Juypter notebook is up and running on your machine before moving to the next step.
+
+3. From the terminal,  browse to the folder web_app that contains the file manage.py and run the following command to start the web server:
 
 ```python manage.py runserver```
+
 ```Important: Don`t panic if you see some error red warning message about migrating, You can simply ignore it. If it is running successfully, then you will see the url http://localhost:8000```
 
-3. if the previous command run successfully, then you can head to the web browser and open the following url:
+4. If the previous command run successfully, then you can head to the web browser and open the following url:
 
 ```http://localhost:8000```
 
-4. From the home page, browse to the folder where you want to create a new project in. Click ```New Project``` button. A new project will be created and opened. The Project file extension is ```.pickle```. 
+5. From the home page, browse to the folder where you want to create a new project in. Click ```New Project``` button. A new project will be created and opened. The Project file extension is ```.pickle```. 
 
 # Contributors
 - [Raafat H](https://github.com/raafat-hantoush)

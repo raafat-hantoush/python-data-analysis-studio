@@ -304,6 +304,7 @@
 
         function save_experiment(){
             console.log("save experiment is invoked");
+            let experiment_name= document.getElementById("current_experiment_lbl").innerHTML.substr(20);
 
             let steps_info=get_steps_info();
             const updated_steps_ids=steps_info[0];
@@ -328,7 +329,7 @@
                     },dataType: "json"
                 });
 
-                $("#save_experiment_status_lbl").html("experiment saved last time at "+ get_current_date())
+                $("#save_experiment_status_lbl").html(experiment_name+" saved last time at "+ get_current_date())
         }
         function export_experiment_to_notebook(){
             console.log("export experiment to notebook is invoked");
@@ -361,7 +362,7 @@
                 },dataType: "json"
             });
 
-            $("#save_experiment_status_lbl").html("experiment exported successfully at "+ get_current_date())
+            $("#save_experiment_status_lbl").html(experiment_name+" exported successfully at "+ get_current_date())
         }                  
     </script>
 
